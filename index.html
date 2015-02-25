@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="index.css">
+        <title></title>
+    </head>
+    <body>
+        <div class="main">
+            <div class="graph-content">
+                <div class="graph-field">
+                        <canvas width="550px" height="550px" id="mainField"></canvas>
+                </div>
+                <div class="graph-info">
+                    <div class="menu">
+                        <div class="menu-dropdown">
+                            <p>&equiv;</p><p>Menu</p>
+                        </div>
+                        <ul>
+                            <li>Input file</li>
+                            <li>Adjacency matrix</li>
+                            <li>Incidence matrix</li>
+                            <li>Vertices degree</li>
+                        </ul>
+                    </div>
+                    <div class="input-info">
+                        <div class="input-info-content">
+                            <p>Input</p>
+                        </div>
+                    </div>
+                    <div class="adjacency-matrix">
+                        <div class="adjacency-matrix-content">
+                            <p>Adjacency-matrix</p>
+                            <table></table>
+                        </div>
+                    </div>
+                    <div class="incidence-matrix">
+                        <div class="incidence-matrix-content">
+                            <p>Incidence-matrix</p>
+                        </div>
+                    </div>
+                    <div class="vertices-degree">
+                        <div class="vertices-degree-content">
+                            <p>Vertices-degree</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="user-interface">
+            <div class="user-interface-content">
+                <input type="file" id="fileinput" />
+            </div>
+        </div>
+    </body>
+    <script src="jquery-1.11.2.min.js"></script>
+    <script src="index.js"></script>
+</html>
