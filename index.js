@@ -25,7 +25,7 @@ function Graph( NODES_COUNT ) {
     this.NODES_COUNT = NODES_COUNT ;
 
     this.clear = function() {
-        this.NODES_COUNT = this.EDGES_COUNT = null ; this.NodeList = this.EdgeList = [] ;
+        this.NODES_COUNT = null ; this.EDGES_COUNT = null ; this.NodeList = [] ; this.EdgeList = [] ;
     } ;
 
     this.init = function( nodeCount ) {
@@ -50,6 +50,7 @@ function Graph( NODES_COUNT ) {
 
     this.addEdge = function( nodeStart, nodeFinish ) {
         this.NodeList[nodeStart].appendEdge(nodeFinish) ;
+
         this.EdgeList.push( { from: nodeStart, to: nodeFinish } ) ;
 
         this.notifyGraphChanged() ;
@@ -108,6 +109,7 @@ function Graph( NODES_COUNT ) {
 
     this.notifyGraphChanged = function() {
         this.AdjacencyMatrix = null ;
+        this.IncidenceMatrix = null ;
     } ;
 
     this.AdjacencyMatrix = null ;
@@ -125,7 +127,27 @@ function Graph( NODES_COUNT ) {
                     this.AdjacencyMatrix[i][this.NodeList[i].edges_list[j]] = 1;
         }
         return this.AdjacencyMatrix ;
-    }
+    } ;
+
+    this.IncidenceMatrix = null ;
+    this.getIncidenceMatrix = function() {
+        if( !this.IncidenceMatrix ) {
+            var i, j;
+            this.IncidenceMatrix = new Array(this.EDGES_COUNT);
+            for (i = 0; i < this.EDGES_COUNT; ++i)
+                this.IncidenceMatrix[i] = new Array(this.NODES_COUNT);
+            for (i = 0; i < this.EDGES_COUNT; ++i)
+                for (j = 0; j < this.NODES_COUNT; ++j)
+                    this.IncidenceMatrix[i][j] = 0;
+            for (i = 0; i < this.EDGES_COUNT; ++i)
+                for (j = 0; j < this.NODES_COUNT; ++j)
+                    if (this.EdgeList[i].from == j)
+                        this.IncidenceMatrix[i][j] = -1;
+                    else if (this.EdgeList[i].to == j)
+                        this.IncidenceMatrix[i][j] = 1;
+        }
+        return this.IncidenceMatrix ;
+    } ;
 }
 
 function refreshImage() {
@@ -331,20 +353,24 @@ canvas.drawArrow = function( point1, point2, context ) {
 
 //CSS
 
+function resetTdHover() {
+    var tableTDs = document.body.getElementsByTagName("td") ;
+    for( var i = 0 ; i < tableTDs.length ; ++i )
+        tableTDs[i].onmouseover = function() {
+        }
+}
+
 var divLinks = [
         document.body.getElementsByClassName("input-info")[0],
         document.body.getElementsByClassName("adjacency-matrix")[0],
         document.body.getElementsByClassName("incidence-matrix")[0],
         document.body.getElementsByClassName("vertices-degree")[0]
     ],
-    tableLinks = [
-        undefined,
-        document.body.getElementsByClassName("adjacency-matrix")[0]
-            .getElementsByTagName("table")[0],
-        document.body.getElementsByClassName("incidence-matrix")[0]
-            .getElementsByTagName("table")[0],
-        document.body.getElementsByClassName("vertices-degree")[0]
-            .getElementsByTagName("table")[0]
+    divContentLinks = [
+        document.body.getElementsByClassName("input-info-content")[0],
+        document.body.getElementsByClassName("adjacency-matrix-content")[0],
+        document.body.getElementsByClassName("incidence-matrix-content")[0],
+        document.body.getElementsByClassName("vertices-degree-content")[0]
     ] ;
 
 function unsetZIndex() {
@@ -380,42 +406,54 @@ document.body.getElementsByTagName("li")[3].onclick = function() {
     updateVerticesDegree() ;
 };
 
-function updateInputInfo() {
-
-}
-
-function updateAdjacencyMatrix() {while( tableLinks[1].firstChild )
-    tableLinks[1].removeChild( tableLinks[1].firstChild ) ;
-
-    var newTr, newTd, i, j;
+function createTable( matrix ) {
+    var
+        newTable = document.createElement("table"),
+        matrixWidth = matrix[0].length,
+        matrixHeight = matrix.length,
+        newTr, newTd, i, j ;
 
     newTr = document.createElement("tr");
     newTd = document.createElement("td");
     newTd.appendChild(document.createTextNode(""));
     newTr.appendChild(newTd);
-    for (i = 0; i < canvasGraph.NODES_COUNT; ++i) {
+    for (j = 0; j < matrixWidth; ++j) {
         newTd = document.createElement("td");
-        newTd.appendChild(document.createTextNode("" + (i + 1)));
+        newTd.appendChild(document.createTextNode("" + (j + 1)));
         newTr.appendChild(newTd);
     }
-    tableLinks[1].appendChild(newTr);
+    newTable.appendChild(newTr);
 
-    for (i = 0; i < canvasGraph.NODES_COUNT; ++i) {
+    for (i = 0; i < matrixHeight; ++i) {
         newTr = document.createElement("tr");
         newTd = document.createElement("td");
         newTd.appendChild(document.createTextNode("" + (i + 1)));
         newTr.appendChild(newTd);
-        for (j = 0; j < canvasGraph.NODES_COUNT; ++j) {
+        for (j = 0; j < matrixWidth; ++j) {
             newTd = document.createElement("td");
-            newTd.appendChild(document.createTextNode("" + canvasGraph.getAdjacencyMatrix()[i][j]));
+            newTd.appendChild(document.createTextNode("" + matrix[i][j]));
             newTr.appendChild(newTd);
         }
-        tableLinks[1].appendChild(newTr);
+        newTable.appendChild(newTr);
     }
+
+    return newTable ;
+}
+
+function updateInputInfo() {
+
+}
+
+function updateAdjacencyMatrix() {
+    if( divContentLinks[1].getElementsByTagName("table")[0] != undefined )
+        divContentLinks[1].removeChild( divLinks[1].getElementsByTagName("table")[0] ) ;
+    divContentLinks[1].appendChild( createTable( canvasGraph.getAdjacencyMatrix() ) ) ;
 }
 
 function updateIncidenceMatrix() {
-
+    if( divContentLinks[2].getElementsByTagName("table")[0] != undefined )
+        divContentLinks[2].removeChild( divLinks[2].getElementsByTagName("table")[0] ) ;
+    divContentLinks[2].appendChild( createTable( canvasGraph.getIncidenceMatrix() ) ) ;
 }
 
 function updateVerticesDegree() {

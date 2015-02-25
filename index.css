@@ -14,20 +14,27 @@
     -ms-user-select: none;
     user-select: none;
     font-size: 0 ;
+    cursor: default ;
+}
+
+html {
+    display: inline-table ;
+    height: 100% ;
 }
 
 body {
-    height: 100% ; line-height: 100% ;
+    height: 100% ;
+    display: table-cell ;
+    vertical-align: middle ;
+    text-align: center ;
 }
 
 .main,
 .user-interface {
     width: 100% ;
     text-align: center ;
-}
 
-.main {
-    padding-top: 10px ;
+    display: inline-block ;
 }
 
 .graph-content,
@@ -43,7 +50,7 @@ body {
 
 .graph-content {
     height: 550px ;
-    margin-top: 10px ; margin-bottom: 15px ;
+    margin-bottom: 15px ;
 }
 
 .graph-field,
@@ -56,7 +63,7 @@ body {
 .graph-info {
     float: right ;
     height: 550px ;
-    background: rgb(240,240,240) ;
+    background: white ;
     position: relative ;
 
     border: 1px solid black ;
@@ -71,7 +78,7 @@ body {
 
     padding: 5px ;
 
-    z-index: 100 ;
+    z-index: 25 ;
 }
 
 .menu-dropdown {
@@ -84,8 +91,6 @@ body {
     color: white ;
 
     border-radius: 5px ;
-
-    cursor: default ;
 }
 
 .menu-dropdown p {
@@ -104,11 +109,15 @@ body {
 .menu-dropdown:hover ~ ul, .menu ul:hover {
     opacity: 1 ;
     visibility: visible ;
+    height: auto ;
 
     transform: translateY(0) ;
 }
 
 .menu ul {
+    height: 0 ;
+    overflow: hidden ;
+
     opacity: 0 ;
     visibility: hidden ;
 
@@ -128,8 +137,6 @@ body {
     border-radius: 5px ;
 
     font-family: Aller, sans-serif ; font-size: 14px ; color: rgb(50,50,50) ;
-
-    cursor: default ;
 }
 
 .menu ul li:first-child {
@@ -145,7 +152,7 @@ body {
 .incidence-matrix,
 .vertices-degree {
     height: 550px ; width: 550px ;
-    background: rgb(250,250,250) ;
+    background: white ;
     position: absolute ; top: 0 ; left: 0 ;
 
     border-radius: 5px ;
@@ -185,6 +192,10 @@ tr {
     text-align: center ;
 }
 
+td:hover {
+    background: blue ;
+}
+
 td {
     width: 25px ; height: 25px ;
     background: lightgray ;
@@ -193,6 +204,11 @@ td {
     font-family: Aller, sans-serif ; font-size: 12px ; color: rgb(50,50,50) ;
 
     cursor: pointer ;
+}
+
+tr:first-child td,
+td:first-child {
+    cursor: default ;
 }
 
 tr:first-child td {
@@ -223,6 +239,7 @@ tr:first-child td:first-child {
 
 canvas
 {
+    background: white ;
     border: 1px solid #aaa;
     border-radius: 5px;
 
