@@ -150,7 +150,9 @@ body {
 .input-info,
 .adjacency-matrix,
 .incidence-matrix,
-.vertices-degree {
+.vertices-degree,
+.isolated-edges,
+.leaf-edges {
     height: 540px ; width: 550px ;
     background: white ;
     position: absolute ; top: 0 ; left: 0 ;
@@ -163,7 +165,9 @@ body {
 .input-info p,
 .adjacency-matrix p,
 .incidence-matrix p,
-.vertices-degree p {
+.vertices-degree p,
+.isolated-edges p,
+.leaf-edges p {
     margin-bottom: 20px ;
     font-family: Aller, sans-serif ; font-size: 18px ; color: rgb(50,50,50) ;
 }
@@ -179,13 +183,16 @@ body {
 .input-info-content,
 .adjacency-matrix-content,
 .incidence-matrix-content,
-.vertices-degree-content {
-    height: 490px ; min-width: 490px ;
+.vertices-degree-content,
+.isolated-edges-content,
+.leaf-edges-content {
+    height: 490px ; max-height: 500px ; min-width: 490px ; width: 100% ;
     padding: 20px ;
     display: table-cell ;
     vertical-align: middle ;
     text-align: center ;
     position: relative ;
+    overflow: hidden ;
 }
 
 input[type="file"] {
@@ -194,10 +201,10 @@ input[type="file"] {
 table {
     position: relative ;
     display: inline ;
+    margin: 5px ;
 
     border-spacing: 0 ;
 
-    margin-right: 20px ;
 }
 
 table:last-child {
