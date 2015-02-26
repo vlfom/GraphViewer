@@ -61,12 +61,13 @@ body {
 }
 
 .graph-info {
+
+    overflow: hidden ;
     float: right ;
-    height: 550px ;
     background: white ;
     position: relative ;
 
-    border: 1px solid black ;
+    border: 1px solid #aaa ;
     border-radius: 5px ;
 }
 
@@ -83,7 +84,7 @@ body {
 
 .menu-dropdown {
     width: 95px ; height: 30px ; line-height: 29px ;
-    background: rgb(90,110,110) ;
+    background: rgba(90,110,110,0.9) ;
 
     padding-right: 14px ;
 
@@ -102,7 +103,6 @@ body {
 }
 
 .menu-dropdown p:last-child {
-    margin-top: 1px ;
     font-family: Aller, sans-serif ; font-size: 16px ; float: right ;
 }
 
@@ -151,13 +151,11 @@ body {
 .adjacency-matrix,
 .incidence-matrix,
 .vertices-degree {
-    height: 550px ; width: 550px ;
+    height: 540px ; width: 550px ;
     background: white ;
     position: absolute ; top: 0 ; left: 0 ;
 
     border-radius: 5px ;
-
-    z-index: 0 ;
 
     display: inline-table ;
 }
@@ -170,22 +168,40 @@ body {
     font-family: Aller, sans-serif ; font-size: 18px ; color: rgb(50,50,50) ;
 }
 
+.to_scroll {
+    position: relative ;
+    height: 550px ; max-height: 550px ;
+    width: 550px ; max-width: 550px ;
+    overflow: scroll ;
+    text-align: center ;
+}
+
 .input-info-content,
 .adjacency-matrix-content,
 .incidence-matrix-content,
 .vertices-degree-content {
+    height: 490px ; min-width: 490px ;
+    padding: 20px ;
     display: table-cell ;
     vertical-align: middle ;
     text-align: center ;
+    position: relative ;
 }
 
 input[type="file"] {
 }
 
 table {
+    position: relative ;
     display: inline ;
 
     border-spacing: 0 ;
+
+    margin-right: 20px ;
+}
+
+table:last-child {
+    margin-right: 0 ;
 }
 
 tr {
@@ -193,12 +209,12 @@ tr {
 }
 
 td:hover {
-    background: blue ;
+    background: #ddd ;
 }
 
 td {
-    width: 25px ; height: 25px ;
-    background: lightgray ;
+    width: 22px ; min-width: 22px ; height: 22px ; min-height: 22px ;
+    background: #eee ;
     text-align: center ;
 
     font-family: Aller, sans-serif ; font-size: 12px ; color: rgb(50,50,50) ;
@@ -212,29 +228,42 @@ td:first-child {
 }
 
 tr:first-child td {
-    border-top: 2px solid black ;
-    border-bottom: 2px solid black ;
+    border-top: 1px solid black ;
+    border-bottom: 1px solid black ;
 
     background: lightcyan ;
 }
 
 tr:last-child td {
-    border-bottom: 2px solid black ;
+    border-bottom: 1px solid black ;
 }
 
 td:first-child {
-    border-left: 2px solid black ;
-    border-right: 2px solid black ;
+    border-left: 1px solid black ;
+    border-right: 1px solid black ;
 
     background: lightcyan ;
 }
 
 td:last-child {
-    border-right: 2px solid black ;
+    border-right: 1px solid black ;
 }
 
 tr:first-child td:first-child {
     background: lightblue ;
+}
+
+tr:first-child td:first-child {
+    border-top-left-radius: 5px ;
+}
+tr:first-child td:last-child {
+    border-top-right-radius: 5px ;
+}
+tr:last-child td:first-child {
+    border-bottom-left-radius: 5px ;
+}
+tr:last-child td:last-child {
+    border-bottom-right-radius: 5px ;
 }
 
 canvas

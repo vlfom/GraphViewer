@@ -22,76 +22,85 @@ function Node( index ) {
 }
 
 function Graph( NODES_COUNT ) {
-    this.NODES_COUNT = NODES_COUNT ;
+    this.NODES_COUNT = NODES_COUNT;
 
-    this.clear = function() {
-        this.NODES_COUNT = null ; this.EDGES_COUNT = null ; this.NodeList = [] ; this.EdgeList = [] ;
-    } ;
+    this.clear = function () {
+        this.NODES_COUNT = null;
+        this.EDGES_COUNT = 0;
+        this.NodeList = [];
+        this.EdgeList = [];
+        this.notifyGraphChanged();
+    };
 
-    this.init = function( nodeCount ) {
-        this.NODES_COUNT = nodeCount ;
-        for(var i = 0 ; i < this.NODES_COUNT; ++i)
-            this.NodeList.push( new Node(i) ) ;
-        this.COLOR_SEED = Math.floor( Math.random() * 100 ) ;
-    } ;
+    this.init = function (nodeCount) {
+        this.NODES_COUNT = nodeCount;
+        for (var i = 0; i < this.NODES_COUNT; ++i)
+            this.NodeList.push(new Node(i));
+    };
 
-    this.prepareToDisplay = function() {
-        var sX = canvasWidth/2,
-            sY = canvasHeight/2,
+    this.prepareToDisplay = function () {
+        this.COLOR_SEED = Math.floor(Math.random() * 100);
+
+        var sX = canvasWidth / 2,
+            sY = canvasHeight / 2,
             cAngle = 0,
-            dAngle = 2*Math.PI / this.NODES_COUNT ;
+            dAngle = 2 * Math.PI / this.NODES_COUNT;
 
-        for( var i = 0 ; i < this.NODES_COUNT ; ++i ) {
+        for (var i = 0; i < this.NODES_COUNT; ++i) {
             this.NodeList[i].x = this.NodeList[i].fX = sX + CIRCLE_RADIUS * Math.cos(cAngle);
             this.NodeList[i].y = this.NodeList[i].fY = sY + CIRCLE_RADIUS * Math.sin(cAngle);
-            cAngle += dAngle ;
+            cAngle += dAngle;
         }
-    } ;
+    };
 
-    this.addEdge = function( nodeStart, nodeFinish ) {
-        this.NodeList[nodeStart].appendEdge(nodeFinish) ;
+    this.addEdge = function (nodeStart, nodeFinish) {
+        ++this.EDGES_COUNT;
 
-        this.EdgeList.push( { from: nodeStart, to: nodeFinish } ) ;
+        this.NodeList[nodeStart].appendEdge(nodeFinish);
 
-        this.notifyGraphChanged() ;
-    } ;
+        this.EdgeList.push({from: nodeStart, to: nodeFinish});
 
-    this.display = function( context, indexToDisplay ) {
-        if( typeof indexToDisplay == "undefined" ) {
-            var i ;
+        this.notifyGraphChanged();
+    };
+
+    this.display = function (context, indexToDisplay) {
+        if (typeof indexToDisplay == "undefined") {
+            var i;
             for (i = 0; i < this.NODES_COUNT; ++i)
-                this.displayVertex( context, i ) ;
+                this.displayVertex(context, i);
             for (i = 0; i < this.NODES_COUNT; ++i)
-                this.displayEdgesFromVertex( context, i );
+                this.displayEdgesFromVertex(context, i);
         }
         else {
-            this.displayVertex( context, indexToDisplay ) ;
-            this.displayEdgesFromVertex( context, indexToDisplay ) ;
+            this.displayVertex(context, indexToDisplay);
+            this.displayEdgesFromVertex(context, indexToDisplay);
         }
-    } ;
+    };
 
-    this.displayVertex = function( context, indexToDisplay ) {
-        context.fillStyle = COLOR_LIST[(this.COLOR_SEED+indexToDisplay)%COLOR_LIST.length] ;
+    this.displayVertex = function (context, indexToDisplay) {
+        context.fillStyle = COLOR_LIST[(this.COLOR_SEED + indexToDisplay) % COLOR_LIST.length];
         context.beginPath();
-            context.arc(this.NodeList[indexToDisplay].x, this.NodeList[indexToDisplay].y, VERTEX_RADIUS, 0, 2 * Math.PI);
-            context.fill();
-        context.strokeStyle = "black" ; context.lineWidth = 1 ;
+        context.arc(this.NodeList[indexToDisplay].x, this.NodeList[indexToDisplay].y, VERTEX_RADIUS, 0, 2 * Math.PI);
+        context.fill();
+        context.strokeStyle = "black";
+        context.lineWidth = 1;
         context.beginPath();
-            context.arc(this.NodeList[indexToDisplay].x, this.NodeList[indexToDisplay].y, VERTEX_RADIUS, 0, 2 * Math.PI);
+        context.arc(this.NodeList[indexToDisplay].x, this.NodeList[indexToDisplay].y, VERTEX_RADIUS, 0, 2 * Math.PI);
         context.stroke();
         context.fillStyle = "white";
         context.font = "20px Consolas";
-        var numberLength = Math.floor(Math.log(indexToDisplay + 1) / Math.log(10) + 1e-5) ;
+        var numberLength = Math.floor(Math.log(indexToDisplay + 1) / Math.log(10) + 1e-5);
         context.fillText((indexToDisplay + 1) + "", this.NodeList[indexToDisplay].x - 5.5 * numberLength - 5, this.NodeList[indexToDisplay].y + 7);
-    } ;
+    };
 
-    this.displayEdgesFromVertex = function( context, nodeStart, color, width ) {
-        color = typeof color !== "undefined" ? color : "black" ;
-        width = typeof width !== "undefined" ? width : 2 ;
+    this.displayEdgesFromVertex = function (context, nodeStart, color, width) {
+        color = typeof color !== "undefined" ? color : "black";
+        width = typeof width !== "undefined" ? width : 1;
 
-        context.strokeStyle = context.fillStyle = color ; context.lineWidth = width ;
+        context.strokeStyle = context.fillStyle = color;
+        context.lineWidth = width;
         for (var i = 0; i < this.NodeList[nodeStart].edges_list.length; ++i) {
-            if( this.NodeList[nodeStart] == this.NodeList[this.NodeList[nodeStart].edges_list[i]] )
+            if (this.NodeList[nodeStart] == this.NodeList[this.NodeList[nodeStart].edges_list[i]])
                 canvas.drawArrow(this.NodeList[nodeStart], this.NodeList[nodeStart], context);
             else {
                 var point1 = jQuery.extend({}, this.NodeList[nodeStart]),
@@ -101,20 +110,49 @@ function Graph( NODES_COUNT ) {
                 canvas.drawArrow(shortenedLine[0], shortenedLine[1], context);
             }
         }
-    } ;
+    };
 
-    this.getVertex = function( nodeIndex ) {
-        return this.NodeList[ nodeIndex ] ;
-    } ;
+    this.getVertex = function (nodeIndex) {
+        return this.NodeList[nodeIndex];
+    };
 
-    this.notifyGraphChanged = function() {
-        this.AdjacencyMatrix = null ;
-        this.IncidenceMatrix = null ;
-    } ;
+    this.notifyGraphChanged = function () {
+        this.FormattedEdgesList = null;
+        this.AdjacencyMatrix = null;
+        this.IncidenceMatrix = null;
+        this.FormattedVerticesDegree = null;
+    };
 
-    this.AdjacencyMatrix = null ;
-    this.getAdjacencyMatrix = function() {
-        if( !this.AdjacencyMatrix ) {
+    this.FormattedEdgesList = null;
+    this.getFormattedEdgesList = function () {
+        if (!this.FormattedEdgesList) {
+            var i, j,
+                EDGES_PER_COLUMN = 20,
+                subMatricesCount = Math.floor((this.EDGES_COUNT - 1) / EDGES_PER_COLUMN) + 1 ;
+            this.FormattedEdgesList = new Array(subMatricesCount);
+            for (i = 0; i < subMatricesCount; ++i) {
+                if (i < subMatricesCount - 1)
+                    this.FormattedEdgesList[i] = new Array(EDGES_PER_COLUMN+1);
+                else
+                    this.FormattedEdgesList[i] = new Array(2 + (this.EDGES_COUNT-1) % EDGES_PER_COLUMN);
+                for (j = 0; j < this.FormattedEdgesList[i].length; ++j)
+                    this.FormattedEdgesList[i][j] = new Array(3);
+                this.FormattedEdgesList[i][0][0] = "";
+                this.FormattedEdgesList[i][0][1] = "From";
+                this.FormattedEdgesList[i][0][2] = "To";
+                for (j = 1; j < this.FormattedEdgesList[i].length; ++j) {
+                    this.FormattedEdgesList[i][j][0] = j + i * EDGES_PER_COLUMN + " edge";
+                    this.FormattedEdgesList[i][j][1] = this.EdgeList[j - 1 + i * EDGES_PER_COLUMN].from + 1;
+                    this.FormattedEdgesList[i][j][2] = this.EdgeList[j - 1 + i * EDGES_PER_COLUMN].to + 1;
+                }
+            }
+        }
+        return this.FormattedEdgesList;
+    };
+
+    this.AdjacencyMatrix = null;
+    this.getAdjacencyMatrix = function () {
+        if (!this.AdjacencyMatrix) {
             var i, j;
             this.AdjacencyMatrix = new Array(this.NODES_COUNT);
             for (i = 0; i < this.NODES_COUNT; ++i)
@@ -126,28 +164,63 @@ function Graph( NODES_COUNT ) {
                 for (j = 0; j < this.NodeList[i].edges_list.length; ++j)
                     this.AdjacencyMatrix[i][this.NodeList[i].edges_list[j]] = 1;
         }
-        return this.AdjacencyMatrix ;
-    } ;
+        return this.AdjacencyMatrix;
+    };
 
-    this.IncidenceMatrix = null ;
-    this.getIncidenceMatrix = function() {
-        if( !this.IncidenceMatrix ) {
+    this.IncidenceMatrix = null;
+    this.getIncidenceMatrix = function () {
+        if (!this.IncidenceMatrix) {
             var i, j;
-            this.IncidenceMatrix = new Array(this.EDGES_COUNT);
-            for (i = 0; i < this.EDGES_COUNT; ++i)
-                this.IncidenceMatrix[i] = new Array(this.NODES_COUNT);
-            for (i = 0; i < this.EDGES_COUNT; ++i)
-                for (j = 0; j < this.NODES_COUNT; ++j)
-                    this.IncidenceMatrix[i][j] = 0;
-            for (i = 0; i < this.EDGES_COUNT; ++i)
-                for (j = 0; j < this.NODES_COUNT; ++j)
-                    if (this.EdgeList[i].from == j)
+            this.IncidenceMatrix = new Array(this.NODES_COUNT);
+            for (i = 0; i < this.NODES_COUNT; ++i)
+                this.IncidenceMatrix[i] = new Array(this.EDGES_COUNT);
+            for (i = 0; i < this.NODES_COUNT; ++i)
+                for (j = 0; j < this.EDGES_COUNT; ++j)
+                    if (this.EdgeList[j].from == i && this.EdgeList[j].to == i)
+                        this.IncidenceMatrix[i][j] = "L";
+                    else if (this.EdgeList[j].from == i)
                         this.IncidenceMatrix[i][j] = -1;
-                    else if (this.EdgeList[i].to == j)
+                    else if (this.EdgeList[j].to == i)
                         this.IncidenceMatrix[i][j] = 1;
+                    else
+                        this.IncidenceMatrix[i][j] = 0;
         }
-        return this.IncidenceMatrix ;
-    } ;
+        return this.IncidenceMatrix;
+    };
+
+    this.FormattedVerticesDegree = null;
+    this.getFormattedVerticesDegree = function () {
+        if (!this.FormattedVerticesDegree) {
+            var i, j, k,
+                subMatricesCount = Math.floor((this.NODES_COUNT - 1) / 15) + 1;
+            this.FormattedVerticesDegree = new Array(subMatricesCount);
+            console.log( "subMCount", subMatricesCount ) ;
+            for (i = 0; i < subMatricesCount; ++i) {
+                if (i < subMatricesCount - 1)
+                    this.FormattedVerticesDegree[i] = new Array(16);
+                else
+                    this.FormattedVerticesDegree[i] = new Array(2 + (this.NODES_COUNT-1) % 15);
+                for (j = 0; j < this.FormattedVerticesDegree[i].length; ++j) {
+                    this.FormattedVerticesDegree[i][j] = new Array(3);
+                    this.FormattedVerticesDegree[i][j][1] = 0;
+                }
+                this.FormattedVerticesDegree[i][0][0] = "";
+                this.FormattedVerticesDegree[i][0][1] = "In-deg";
+                this.FormattedVerticesDegree[i][0][2] = "Out-deg";
+                for (j = 1; j < this.FormattedVerticesDegree[i].length; ++j) {
+                    this.FormattedVerticesDegree[i][j][0] = j + i * 15 + " edge";
+                    this.FormattedVerticesDegree[i][j][2] = this.NodeList[j - 1 + i * 15].edges_list.length;
+                }
+            }
+            for (i = 0; i < subMatricesCount; ++i)
+                for (j = 1; j < this.FormattedVerticesDegree[i].length; ++j)
+                    for (k = 0; k < this.NodeList[j - 1 + i * 15].edges_list.length; ++k) {
+                        var targetVertex = this.NodeList[j - 1 + i * 15].edges_list[k];
+                        this.FormattedVerticesDegree[Math.floor(targetVertex / 15)][targetVertex % 15 + 1][1] += 1;
+                    }
+        }
+        return this.FormattedVerticesDegree;
+    };
 }
 
 function refreshImage() {
@@ -174,8 +247,8 @@ function readFile(evt) {
                 var recNumber = parseInt(numberText);
                 if (canvasGraph.NODES_COUNT == null)
                     canvasGraph.init( recNumber ) ;
-                else if (canvasGraph.EDGES_COUNT == null)
-                    canvasGraph.EDGES_COUNT = recNumber ;
+                else if (tempEdges == null)
+                    tempEdges = recNumber ;
                 else if (edgeParent == null)
                     edgeParent = recNumber - 1;
                 else {
@@ -184,7 +257,7 @@ function readFile(evt) {
                 }
             }
 
-            var lastTemp = "", edgeParent ;
+            var lastTemp = "", tempEdges = null, edgeParent ;
             for( var i = 0, len = fileContent.length ; i < len ; ++i )
                 if( fileContent[i] == " " || fileContent[i] == "\n" ) {
                     if( lastTemp != "" ) {
@@ -198,7 +271,6 @@ function readFile(evt) {
                 processReadNumber(lastTemp) ;
 
             canvasGraph.prepareToDisplay() ;
-
 
             updateInputInfo() ;
             updateAdjacencyMatrix() ;
@@ -406,29 +478,37 @@ document.body.getElementsByTagName("li")[3].onclick = function() {
     updateVerticesDegree() ;
 };
 
-function createTable( matrix ) {
+document.body.getElementsByTagName("li")[4].onclick = function() {
+    canvasGraph.prepareToDisplay() ;
+};
+
+function createTable( matrix, addIndexes ) {
     var
         newTable = document.createElement("table"),
         matrixWidth = matrix[0].length,
         matrixHeight = matrix.length,
         newTr, newTd, i, j ;
 
-    newTr = document.createElement("tr");
-    newTd = document.createElement("td");
-    newTd.appendChild(document.createTextNode(""));
-    newTr.appendChild(newTd);
-    for (j = 0; j < matrixWidth; ++j) {
+    if( addIndexes ) {
+        newTr = document.createElement("tr");
         newTd = document.createElement("td");
-        newTd.appendChild(document.createTextNode("" + (j + 1)));
+        newTd.appendChild(document.createTextNode(""));
         newTr.appendChild(newTd);
+        for (j = 0; j < matrixWidth; ++j) {
+            newTd = document.createElement("td");
+            newTd.appendChild(document.createTextNode("" + (j + 1)));
+            newTr.appendChild(newTd);
+        }
+        newTable.appendChild(newTr);
     }
-    newTable.appendChild(newTr);
 
     for (i = 0; i < matrixHeight; ++i) {
         newTr = document.createElement("tr");
-        newTd = document.createElement("td");
-        newTd.appendChild(document.createTextNode("" + (i + 1)));
-        newTr.appendChild(newTd);
+        if( addIndexes ) {
+            newTd = document.createElement("td");
+            newTd.appendChild(document.createTextNode("" + (i + 1)));
+            newTr.appendChild(newTd);
+        }
         for (j = 0; j < matrixWidth; ++j) {
             newTd = document.createElement("td");
             newTd.appendChild(document.createTextNode("" + matrix[i][j]));
@@ -441,21 +521,59 @@ function createTable( matrix ) {
 }
 
 function updateInputInfo() {
-
+    while( divContentLinks[0].getElementsByTagName("table")[0] != undefined )
+        divContentLinks[0].removeChild( divLinks[0].getElementsByTagName("table")[0] ) ;
+    var i ;
+    for( i = 0 ; i < canvasGraph.getFormattedEdgesList().length ; ++i )
+        divContentLinks[0].appendChild( createTable( canvasGraph.getFormattedEdgesList()[i], false, 40 ) ) ;
+    var inputRows = divContentLinks[0].getElementsByTagName("tr") ;
+    for( i = 0 ; i < inputRows.length ; ++i ) {
+        inputRows[i].getElementsByTagName("td")[0].style.width = "55px";
+        inputRows[i].getElementsByTagName("td")[1].style.width = "40px";
+        inputRows[i].getElementsByTagName("td")[2].style.width = "35px";
+    }
 }
 
 function updateAdjacencyMatrix() {
     if( divContentLinks[1].getElementsByTagName("table")[0] != undefined )
         divContentLinks[1].removeChild( divLinks[1].getElementsByTagName("table")[0] ) ;
-    divContentLinks[1].appendChild( createTable( canvasGraph.getAdjacencyMatrix() ) ) ;
+    divContentLinks[1].appendChild( createTable( canvasGraph.getAdjacencyMatrix(), true ) ) ;
+    var inputRows = divContentLinks[3].getElementsByTagName("tr") ;
 }
 
 function updateIncidenceMatrix() {
     if( divContentLinks[2].getElementsByTagName("table")[0] != undefined )
         divContentLinks[2].removeChild( divLinks[2].getElementsByTagName("table")[0] ) ;
-    divContentLinks[2].appendChild( createTable( canvasGraph.getIncidenceMatrix() ) ) ;
+    divContentLinks[2].appendChild( createTable( canvasGraph.getIncidenceMatrix(), true ) ) ;
 }
 
 function updateVerticesDegree() {
-
+    while( divContentLinks[3].getElementsByTagName("table")[0] != undefined )
+        divContentLinks[3].removeChild( divLinks[3].getElementsByTagName("table")[0] ) ;
+    var i ;
+    for( i = 0 ; i < canvasGraph.getFormattedVerticesDegree().length ; ++i )
+        divContentLinks[3].appendChild( createTable( canvasGraph.getFormattedVerticesDegree()[i], false, 40 ) ) ;
+    var inputRows = divContentLinks[3].getElementsByTagName("tr") ;
+    for( i = 0 ; i < inputRows.length ; ++i ) {
+        inputRows[i].getElementsByTagName("td")[0].style.width = "55px" ;
+        inputRows[i].getElementsByTagName("td")[1].style.width = "55px" ;
+        inputRows[i].getElementsByTagName("td")[2].style.width = "55px" ;
+    }
 }
+
+/***********START GRAPH***********/
+canvasGraph.clear() ;
+canvasGraph.init(7) ;
+(function() {
+    for( var i = 0 ; i < 7 ; ++i )
+        for( var j = 0 ; j < 7 ; ++j )
+            if( i != j )
+                canvasGraph.addEdge( i,j ) ;
+})() ;
+canvasGraph.prepareToDisplay() ;
+
+updateInputInfo() ;
+updateAdjacencyMatrix() ;
+updateIncidenceMatrix() ;
+updateVerticesDegree() ;
+/***********                 ***********/
