@@ -128,8 +128,9 @@ function Graph( NODES_COUNT ) {
         this.AdjacencyMatrix = null;
         this.IncidenceMatrix = null;
         this.FormattedVerticesDegree = null;
-        this.IsolatedEdges = null ;
-        this.LeafEdges = null ;
+        this.IsolatedNodes = null ;
+        this.LeafNodes = null ;
+        this.RegularityInfo = null ;
     };
 
     this.FormattedEdgesList = null;
@@ -225,60 +226,85 @@ function Graph( NODES_COUNT ) {
         return this.FormattedVerticesDegree;
     };
 
-    this.IsolatedEdges = null;
-    this.getIsolatedEdges = function () {
-        if (!this.IsolatedEdges) {
+    this.IsolatedNodes = null;
+    this.getIsolatedNodes = function () {
+        if (!this.IsolatedNodes) {
             var i, j, allIsolated = [],
                 EDGES_PER_COLUMN = 15;
             for (i = 0; i < this.NODES_COUNT; ++i)
                 if (this.NodeList[i].inDegree == 0)
                     allIsolated.push(i+1);
             var subMatricesCount = Math.floor((allIsolated.length - 1) / EDGES_PER_COLUMN) + 1;
-            this.IsolatedEdges = new Array(subMatricesCount);
+            this.IsolatedNodes = new Array(subMatricesCount);
             for (i = 0; i < subMatricesCount; ++i) {
                 if (i < subMatricesCount - 1)
-                    this.IsolatedEdges[i] = new Array(EDGES_PER_COLUMN + 1);
+                    this.IsolatedNodes[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
-                    this.IsolatedEdges[i] = new Array(2 + (allIsolated.length - 1) % EDGES_PER_COLUMN);
-                this.IsolatedEdges[i][0] = new Array(2);
-                this.IsolatedEdges[i][0][0] = "Edge";
-                this.IsolatedEdges[i][0][1] = "In-Degree";
-                for (j = 1; j < this.IsolatedEdges[i].length; ++j) {
-                    this.IsolatedEdges[i][j] = new Array(2);
-                    this.IsolatedEdges[i][j][0] = allIsolated[j-1];
-                    this.IsolatedEdges[i][j][1] = 0;
+                    this.IsolatedNodes[i] = new Array(2 + (allIsolated.length - 1) % EDGES_PER_COLUMN);
+                this.IsolatedNodes[i][0] = new Array(2);
+                this.IsolatedNodes[i][0][0] = "Edge";
+                this.IsolatedNodes[i][0][1] = "In-Degree";
+                for (j = 1; j < this.IsolatedNodes[i].length; ++j) {
+                    this.IsolatedNodes[i][j] = new Array(2);
+                    this.IsolatedNodes[i][j][0] = allIsolated[j-1];
+                    this.IsolatedNodes[i][j][1] = 0;
                 }
             }
         }
-        return this.IsolatedEdges;
+        return this.IsolatedNodes;
     };
 
-    this.LeafEdges = null ;
-    this.getLeafEdges = function() {
-        if (!this.LeafEdges) {
+    this.LeafNodes = null ;
+    this.getLeafNodes = function() {
+        if (!this.LeafNodes) {
             var i, j, allLeafs = [],
                 EDGES_PER_COLUMN = 15;
             for (i = 0; i < this.NODES_COUNT; ++i)
                 if (this.NodeList[i].inDegree == 1)
                     allLeafs.push(i+1);
             var subMatricesCount = Math.floor((allLeafs.length - 1) / EDGES_PER_COLUMN) + 1;
-            this.LeafEdges = new Array(subMatricesCount);
+            this.LeafNodes = new Array(subMatricesCount);
             for (i = 0; i < subMatricesCount; ++i) {
                 if (i < subMatricesCount - 1)
-                    this.LeafEdges[i] = new Array(EDGES_PER_COLUMN + 1);
+                    this.LeafNodes[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
-                    this.LeafEdges[i] = new Array(2 + (allLeafs.length - 1) % EDGES_PER_COLUMN);
-                this.LeafEdges[i][0] = new Array(2);
-                this.LeafEdges[i][0][0] = "Edge";
-                this.LeafEdges[i][0][1] = "In-Degree";
-                for (j = 1; j < this.LeafEdges[i].length; ++j) {
-                    this.LeafEdges[i][j] = new Array(2);
-                    this.LeafEdges[i][j][0] = allLeafs[j-1];
-                    this.LeafEdges[i][j][1] = 1;
+                    this.LeafNodes[i] = new Array(2 + (allLeafs.length - 1) % EDGES_PER_COLUMN);
+                this.LeafNodes[i][0] = new Array(2);
+                this.LeafNodes[i][0][0] = "Edge";
+                this.LeafNodes[i][0][1] = "In-Degree";
+                for (j = 1; j < this.LeafNodes[i].length; ++j) {
+                    this.LeafNodes[i][j] = new Array(2);
+                    this.LeafNodes[i][j][0] = allLeafs[j-1];
+                    this.LeafNodes[i][j][1] = 1;
                 }
             }
         }
-        return this.LeafEdges ;
+        return this.LeafNodes ;
+    }
+
+    this.RegularityInfo = null ;
+    this.getRegularityInfo = function() {
+        if (!this.RegularityInfo) {
+            if( !this.NODES_COUNT ) {
+                this.RegularityInfo = [[]] ;
+                return this.RegularityInfo ;
+            }
+            var i,
+                firstNodeIn = this.NodeList[0].inDegree ,
+                firstNodeOut = this.NodeList[0].outDegree ;
+            for( i = 1 ; i < this.NODES_COUNT ; ++i )
+                if( this.NodeList[i].inDegree != firstNodeIn ||
+                    this.NodeList[i].outDegree != firstNodeOut ) {
+                    this.RegularityInfo = new Array(1) ;
+                    this.RegularityInfo[0] = new Array(1) ;
+                    this.RegularityInfo[0][0] = "Graph is not regular" ;
+                    return this.RegularityInfo ;
+                }
+            this.RegularityInfo = new Array(1) ;
+            this.RegularityInfo[0] = new Array(1) ;
+            this.RegularityInfo[0][0] = "Graph is regular" ;
+        }
+        return this.RegularityInfo ;
     }
 }
 
@@ -335,8 +361,9 @@ function readFile(evt) {
             updateAdjacencyMatrix() ;
             updateIncidenceMatrix() ;
             updateVerticesDegree() ;
-            updateIsolatedEdgesInfo() ;
-            updateLeafEdgesInfo() ;
+            updateIsolatedNodesInfo() ;
+            updateLeafNodesInfo() ;
+            updateRegularityInfo() ;
         } ;
 
         r.readAsText(f);
@@ -498,16 +525,18 @@ var divLinks = [
         document.body.getElementsByClassName("adjacency-matrix")[0],
         document.body.getElementsByClassName("incidence-matrix")[0],
         document.body.getElementsByClassName("vertices-degree")[0],
-        document.body.getElementsByClassName("isolated-edges")[0],
-        document.body.getElementsByClassName("leaf-edges")[0]
+        document.body.getElementsByClassName("isolated-nodes")[0],
+        document.body.getElementsByClassName("leaf-nodes")[0],
+        document.body.getElementsByClassName("regularity")[0]
     ],
     divContentLinks = [
         document.body.getElementsByClassName("input-info-content")[0],
         document.body.getElementsByClassName("adjacency-matrix-content")[0],
         document.body.getElementsByClassName("incidence-matrix-content")[0],
         document.body.getElementsByClassName("vertices-degree-content")[0],
-        document.body.getElementsByClassName("isolated-edges-content")[0],
-        document.body.getElementsByClassName("leaf-edges-content")[0]
+        document.body.getElementsByClassName("isolated-nodes-content")[0],
+        document.body.getElementsByClassName("leaf-nodes-content")[0],
+        document.body.getElementsByClassName("regularity-content")[0]
     ] ;
 
 function unsetZIndex() {
@@ -547,17 +576,24 @@ document.body.getElementsByTagName("li")[4].onclick = function() {
     unsetZIndex();
     divLinks[4].style.zIndex = 10;
 
-    updateIsolatedEdgesInfo() ;
+    updateIsolatedNodesInfo() ;
 };
 
 document.body.getElementsByTagName("li")[5].onclick = function() {
     unsetZIndex();
     divLinks[5].style.zIndex = 10;
 
-    updateLeafEdgesInfo() ;
+    updateLeafNodesInfo() ;
 };
 
 document.body.getElementsByTagName("li")[6].onclick = function() {
+    unsetZIndex();
+    divLinks[6].style.zIndex = 10;
+
+    updateRegularityInfo() ;
+};
+
+document.body.getElementsByTagName("li")[7].onclick = function() {
     canvasGraph.prepareToDisplay() ;
 };
 
@@ -614,14 +650,14 @@ function updateInputInfo() {
 }
 
 function updateAdjacencyMatrix() {
-    if( divContentLinks[1].getElementsByTagName("table")[0] != undefined )
+    while ( divContentLinks[1].getElementsByTagName("table")[0] != undefined )
         divContentLinks[1].removeChild( divLinks[1].getElementsByTagName("table")[0] ) ;
     divContentLinks[1].appendChild( createTable( canvasGraph.getAdjacencyMatrix(), true ) ) ;
     var inputRows = divContentLinks[3].getElementsByTagName("tr") ;
 }
 
 function updateIncidenceMatrix() {
-    if( divContentLinks[2].getElementsByTagName("table")[0] != undefined )
+    while ( divContentLinks[2].getElementsByTagName("table")[0] != undefined )
         divContentLinks[2].removeChild( divLinks[2].getElementsByTagName("table")[0] ) ;
     divContentLinks[2].appendChild( createTable( canvasGraph.getIncidenceMatrix(), true ) ) ;
 }
@@ -639,12 +675,12 @@ function updateVerticesDegree() {
         inputRows[i].getElementsByTagName("td")[2].style.width = "55px" ;
 }
 
-function updateIsolatedEdgesInfo() {
+function updateIsolatedNodesInfo() {
     while (divContentLinks[4].getElementsByTagName("table")[0] != undefined)
         divContentLinks[4].removeChild(divLinks[4].getElementsByTagName("table")[0]);
     var i;
-    for (i = 0; i < canvasGraph.getIsolatedEdges().length; ++i)
-        divContentLinks[4].appendChild(createTable(canvasGraph.getIsolatedEdges()[i], false));
+    for (i = 0; i < canvasGraph.getIsolatedNodes().length; ++i)
+        divContentLinks[4].appendChild(createTable(canvasGraph.getIsolatedNodes()[i], false));
     var inputRows = divContentLinks[4].getElementsByTagName("tr");
     for (i = 0; i < inputRows.length; ++i) {
         inputRows[i].getElementsByTagName("td")[0].style.width = "50px" ;
@@ -652,17 +688,26 @@ function updateIsolatedEdgesInfo() {
     }
 }
 
-function updateLeafEdgesInfo() {
+function updateLeafNodesInfo() {
     while (divContentLinks[5].getElementsByTagName("table")[0] != undefined)
         divContentLinks[5].removeChild(divLinks[5].getElementsByTagName("table")[0]);
     var i;
-    for (i = 0; i < canvasGraph.getIsolatedEdges().length; ++i)
-        divContentLinks[5].appendChild(createTable(canvasGraph.getLeafEdges()[i], false));
+    for (i = 0; i < canvasGraph.getIsolatedNodes().length; ++i)
+        divContentLinks[5].appendChild(createTable(canvasGraph.getLeafNodes()[i], false));
     var inputRows = divContentLinks[5].getElementsByTagName("tr");
     for (i = 0; i < inputRows.length; ++i) {
         inputRows[i].getElementsByTagName("td")[0].style.width = "50px" ;
         inputRows[i].getElementsByTagName("td")[1].style.width = "65px";
     }
+}
+
+function updateRegularityInfo() {
+    while (divContentLinks[6].getElementsByTagName("table")[0] != undefined)
+        divContentLinks[6].removeChild(divLinks[6].getElementsByTagName("table")[0]);
+    divContentLinks[6].appendChild(createTable(canvasGraph.getRegularityInfo(), false));
+    divContentLinks[6].getElementsByTagName("tr")[0].getElementsByTagName("td")[0].style.padding = "10px" ;
+    divContentLinks[6].getElementsByTagName("tr")[0].getElementsByTagName("td")[0].style.width = "130px" ;
+    divContentLinks[6].getElementsByTagName("tr")[0].getElementsByTagName("td")[0].style.fontSize = "16px" ;
 }
 
 /***********START GRAPH***********/
