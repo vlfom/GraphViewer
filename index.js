@@ -128,8 +128,8 @@ function Graph( NODES_COUNT ) {
         this.AdjacencyMatrix = null;
         this.IncidenceMatrix = null;
         this.FormattedVerticesDegree = null;
-        this.IsolatedNodes = null ;
-        this.LeafNodes = null ;
+        this.SourceNodes = null ;
+        this.SinkNodes = null ;
         this.RegularityInfo = null ;
     };
 
@@ -226,61 +226,61 @@ function Graph( NODES_COUNT ) {
         return this.FormattedVerticesDegree;
     };
 
-    this.IsolatedNodes = null;
-    this.getIsolatedNodes = function () {
-        if (!this.IsolatedNodes) {
+    this.SourceNodes = null;
+    this.getSourceNodes = function () {
+        if (!this.SourceNodes) {
             var i, j, allIsolated = [],
                 EDGES_PER_COLUMN = 15;
             for (i = 0; i < this.NODES_COUNT; ++i)
                 if (this.NodeList[i].inDegree == 0)
                     allIsolated.push(i+1);
             var subMatricesCount = Math.floor((allIsolated.length - 1) / EDGES_PER_COLUMN) + 1;
-            this.IsolatedNodes = new Array(subMatricesCount);
+            this.SourceNodes = new Array(subMatricesCount);
             for (i = 0; i < subMatricesCount; ++i) {
                 if (i < subMatricesCount - 1)
-                    this.IsolatedNodes[i] = new Array(EDGES_PER_COLUMN + 1);
+                    this.SourceNodes[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
-                    this.IsolatedNodes[i] = new Array(2 + (allIsolated.length - 1) % EDGES_PER_COLUMN);
-                this.IsolatedNodes[i][0] = new Array(2);
-                this.IsolatedNodes[i][0][0] = "Edge";
-                this.IsolatedNodes[i][0][1] = "In-Degree";
-                for (j = 1; j < this.IsolatedNodes[i].length; ++j) {
-                    this.IsolatedNodes[i][j] = new Array(2);
-                    this.IsolatedNodes[i][j][0] = allIsolated[j-1];
-                    this.IsolatedNodes[i][j][1] = 0;
+                    this.SourceNodes[i] = new Array(2 + (allIsolated.length - 1) % EDGES_PER_COLUMN);
+                this.SourceNodes[i][0] = new Array(2);
+                this.SourceNodes[i][0][0] = "Edge";
+                this.SourceNodes[i][0][1] = "In-Degree";
+                for (j = 1; j < this.SourceNodes[i].length; ++j) {
+                    this.SourceNodes[i][j] = new Array(2);
+                    this.SourceNodes[i][j][0] = allIsolated[j-1];
+                    this.SourceNodes[i][j][1] = 0;
                 }
             }
         }
-        return this.IsolatedNodes;
+        return this.SourceNodes;
     };
 
-    this.LeafNodes = null ;
-    this.getLeafNodes = function() {
-        if (!this.LeafNodes) {
+    this.SinkNodes = null ;
+    this.getSinkNodes = function() {
+        if (!this.SinkNodes) {
             var i, j, allLeafs = [],
                 EDGES_PER_COLUMN = 15;
             for (i = 0; i < this.NODES_COUNT; ++i)
-                if (this.NodeList[i].inDegree == 1)
+                if (this.NodeList[i].outDegree == 0)
                     allLeafs.push(i+1);
             var subMatricesCount = Math.floor((allLeafs.length - 1) / EDGES_PER_COLUMN) + 1;
-            this.LeafNodes = new Array(subMatricesCount);
+            this.SinkNodes = new Array(subMatricesCount);
             for (i = 0; i < subMatricesCount; ++i) {
                 if (i < subMatricesCount - 1)
-                    this.LeafNodes[i] = new Array(EDGES_PER_COLUMN + 1);
+                    this.SinkNodes[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
-                    this.LeafNodes[i] = new Array(2 + (allLeafs.length - 1) % EDGES_PER_COLUMN);
-                this.LeafNodes[i][0] = new Array(2);
-                this.LeafNodes[i][0][0] = "Edge";
-                this.LeafNodes[i][0][1] = "In-Degree";
-                for (j = 1; j < this.LeafNodes[i].length; ++j) {
-                    this.LeafNodes[i][j] = new Array(2);
-                    this.LeafNodes[i][j][0] = allLeafs[j-1];
-                    this.LeafNodes[i][j][1] = 1;
+                    this.SinkNodes[i] = new Array(2 + (allLeafs.length - 1) % EDGES_PER_COLUMN);
+                this.SinkNodes[i][0] = new Array(2);
+                this.SinkNodes[i][0][0] = "Edge";
+                this.SinkNodes[i][0][1] = "Out-Degree";
+                for (j = 1; j < this.SinkNodes[i].length; ++j) {
+                    this.SinkNodes[i][j] = new Array(2);
+                    this.SinkNodes[i][j][0] = allLeafs[j-1];
+                    this.SinkNodes[i][j][1] = 0;
                 }
             }
         }
-        return this.LeafNodes ;
-    }
+        return this.SinkNodes ;
+    } ;
 
     this.RegularityInfo = null ;
     this.getRegularityInfo = function() {
@@ -361,8 +361,8 @@ function readFile(evt) {
             updateAdjacencyMatrix() ;
             updateIncidenceMatrix() ;
             updateVerticesDegree() ;
-            updateIsolatedNodesInfo() ;
-            updateLeafNodesInfo() ;
+            updateSourceNodesInfo() ;
+            updateSinkNodesInfo() ;
             updateRegularityInfo() ;
         } ;
 
@@ -525,8 +525,8 @@ var divLinks = [
         document.body.getElementsByClassName("adjacency-matrix")[0],
         document.body.getElementsByClassName("incidence-matrix")[0],
         document.body.getElementsByClassName("vertices-degree")[0],
-        document.body.getElementsByClassName("isolated-nodes")[0],
-        document.body.getElementsByClassName("leaf-nodes")[0],
+        document.body.getElementsByClassName("source-nodes")[0],
+        document.body.getElementsByClassName("sink-nodes")[0],
         document.body.getElementsByClassName("regularity")[0]
     ],
     divContentLinks = [
@@ -534,8 +534,8 @@ var divLinks = [
         document.body.getElementsByClassName("adjacency-matrix-content")[0],
         document.body.getElementsByClassName("incidence-matrix-content")[0],
         document.body.getElementsByClassName("vertices-degree-content")[0],
-        document.body.getElementsByClassName("isolated-nodes-content")[0],
-        document.body.getElementsByClassName("leaf-nodes-content")[0],
+        document.body.getElementsByClassName("source-nodes-content")[0],
+        document.body.getElementsByClassName("sink-nodes-content")[0],
         document.body.getElementsByClassName("regularity-content")[0]
     ] ;
 
@@ -576,14 +576,14 @@ document.body.getElementsByTagName("li")[4].onclick = function() {
     unsetZIndex();
     divLinks[4].style.zIndex = 10;
 
-    updateIsolatedNodesInfo() ;
+    updateSourceNodesInfo() ;
 };
 
 document.body.getElementsByTagName("li")[5].onclick = function() {
     unsetZIndex();
     divLinks[5].style.zIndex = 10;
 
-    updateLeafNodesInfo() ;
+    updateSinkNodesInfo() ;
 };
 
 document.body.getElementsByTagName("li")[6].onclick = function() {
@@ -675,12 +675,12 @@ function updateVerticesDegree() {
         inputRows[i].getElementsByTagName("td")[2].style.width = "55px" ;
 }
 
-function updateIsolatedNodesInfo() {
+function updateSourceNodesInfo() {
     while (divContentLinks[4].getElementsByTagName("table")[0] != undefined)
         divContentLinks[4].removeChild(divLinks[4].getElementsByTagName("table")[0]);
     var i;
-    for (i = 0; i < canvasGraph.getIsolatedNodes().length; ++i)
-        divContentLinks[4].appendChild(createTable(canvasGraph.getIsolatedNodes()[i], false));
+    for (i = 0; i < canvasGraph.getSourceNodes().length; ++i)
+        divContentLinks[4].appendChild(createTable(canvasGraph.getSourceNodes()[i], false));
     var inputRows = divContentLinks[4].getElementsByTagName("tr");
     for (i = 0; i < inputRows.length; ++i) {
         inputRows[i].getElementsByTagName("td")[0].style.width = "50px" ;
@@ -688,16 +688,16 @@ function updateIsolatedNodesInfo() {
     }
 }
 
-function updateLeafNodesInfo() {
+function updateSinkNodesInfo() {
     while (divContentLinks[5].getElementsByTagName("table")[0] != undefined)
         divContentLinks[5].removeChild(divLinks[5].getElementsByTagName("table")[0]);
     var i;
-    for (i = 0; i < canvasGraph.getIsolatedNodes().length; ++i)
-        divContentLinks[5].appendChild(createTable(canvasGraph.getLeafNodes()[i], false));
+    for (i = 0; i < canvasGraph.getSourceNodes().length; ++i)
+        divContentLinks[5].appendChild(createTable(canvasGraph.getSinkNodes()[i], false));
     var inputRows = divContentLinks[5].getElementsByTagName("tr");
     for (i = 0; i < inputRows.length; ++i) {
         inputRows[i].getElementsByTagName("td")[0].style.width = "50px" ;
-        inputRows[i].getElementsByTagName("td")[1].style.width = "65px";
+        inputRows[i].getElementsByTagName("td")[1].style.width = "70px";
     }
 }
 
