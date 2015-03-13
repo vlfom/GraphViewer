@@ -148,11 +148,13 @@ body {
 }
 
 .input-info,
+.distance-matrix,
 .adjacency-matrix,
 .incidence-matrix,
 .vertices-degree,
 .source-nodes,
 .sink-nodes,
+.cycles,
 .regularity {
     height: 540px ; width: 550px ;
     background: white ;
@@ -164,11 +166,13 @@ body {
 }
 
 .input-info p,
+.distance-matrix p,
 .adjacency-matrix p,
 .incidence-matrix p,
 .vertices-degree p,
 .source-nodes p,
 .sink-nodes p,
+.cycles p,
 .regularity p {
     margin-bottom: 20px ;
     font-family: Aller, sans-serif ; font-size: 18px ; color: rgb(50,50,50) ;
@@ -183,11 +187,13 @@ body {
 }
 
 .input-info-content,
+.distance-matrix-content,
 .adjacency-matrix-content,
 .incidence-matrix-content,
 .vertices-degree-content,
 .source-nodes-content,
 .sink-nodes-content,
+.cycles-content,
 .regularity-content {
     height: 490px ; max-height: 500px ; min-width: 490px ; width: 100% ;
     padding: 20px ;
