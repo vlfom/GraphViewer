@@ -4,11 +4,7 @@
     <bookmark url="file://$PROJECT_DIR$" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e8d813eb-b893-41ef-9e55-6c8852fe496d" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.css" afterPath="$PROJECT_DIR$/index.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.js" afterPath="$PROJECT_DIR$/index.js" />
-    </list>
+    <list default="true" id="e8d813eb-b893-41ef-9e55-6c8852fe496d" name="Default" comment="" />
     <ignored path="Test_canvas.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -44,7 +40,7 @@
       <file leaf-file-name="index.css" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="2956" max-vertical-offset="5134">
+            <state vertical-scroll-proportion="0.0" vertical-offset="4589" max-vertical-offset="5134">
               <caret line="196" column="11" selection-start-line="196" selection-start-column="11" selection-end-line="196" selection-end-column="11" />
               <folding>
                 <element signature="e#4969#5140#2" expanded="true" />
@@ -56,7 +52,7 @@
       <file leaf-file-name="index.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6036697" vertical-offset="15651" max-vertical-offset="16439">
+            <state vertical-scroll-proportion="0.15779817" vertical-offset="15894" max-vertical-offset="16439">
               <caret line="940" column="0" selection-start-line="940" selection-start-column="0" selection-end-line="940" selection-end-column="0" />
               <folding />
             </state>
@@ -171,7 +167,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="337" y="0" width="942" height="695" extended-state="0" />
+    <frame x="337" y="0" width="942" height="695" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -586,7 +582,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6036697" vertical-offset="15651" max-vertical-offset="16439">
+        <state vertical-scroll-proportion="0.15779817" vertical-offset="15894" max-vertical-offset="16439">
           <caret line="940" column="0" selection-start-line="940" selection-start-column="0" selection-end-line="940" selection-end-column="0" />
           <folding />
         </state>
