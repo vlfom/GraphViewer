@@ -12,8 +12,69 @@ var VERTEX_RADIUS = 20,
         "#ef6c00","#d84315"],
     canvasGraph = new Graph(0) ;
 
+function checkRegularity( myGraph ) {
+    var i,
+        firstNodeIn = myGraph.NodeList[0].inDegree,
+        firstNodeOut = myGraph.NodeList[0].outDegree;
+    for (i = 1; i < myGraph.NODES_COUNT; ++i)
+        if (myGraph.NodeList[i].inDegree != firstNodeIn ||
+            myGraph.NodeList[i].outDegree != firstNodeOut)
+            return false ;
+    return true ;
+}
+
+function checkFullness( myGraph ) {
+    var i, j,
+        tempMatrix = new Array(myGraph.NODES_COUNT) ;
+    for( i = 0 ; i < myGraph.NODES_COUNT ; ++i )
+        tempMatrix[i] = new Array(myGraph.NODES_COUNT) ;
+    for( i = 0 ; i < myGraph.NODES_COUNT ; ++i )
+        for( j = 0 ; j < myGraph.NODES_COUNT ; ++j )
+            tempMatrix[i][j] = 0 ;
+    for( i = 0 ; i < myGraph.NODES_COUNT ; ++i )
+        for( j = 0; j < myGraph.NodeList[i].edges_list.length ; ++j )
+            tempMatrix[i][myGraph.NodeList[i].edges_list[j]] = 1 ;
+    for( i = 0 ; i < myGraph.NODES_COUNT ; ++i )
+        for( j = 0 ; j < myGraph.NODES_COUNT ; ++j )
+            if( i != j && !tempMatrix[i][j] )
+                return false ;
+    return true ;
+}
+
+function checkWeakConnectivity( myGraph ) {
+    var i, next, vis = new Array(myGraph.NODES_COUNT);
+    rEdgeList = new Array(myGraph.NODES_COUNT);
+    for (i = 0; i < myGraph.NODES_COUNT; ++i)
+        rEdgeList[i] = new Array(0);
+    for (i = 0; i < myGraph.NODES_COUNT; ++i)
+        for (j = 0; j < myGraph.NodeList[i].edges_list.length; ++j)
+            rEdgeList[myGraph.NodeList[i].edges_list[j]].push(i);
+
+    function dfs(vertex) {
+        var i, next;
+        vis[vertex] = 1;
+        for (i = 0; i < myGraph.NodeList[vertex].edges_list.length; ++i) {
+            next = myGraph.NodeList[vertex].edges_list[i];
+            if (!vis[next])
+                dfs(next);
+        }
+        for (i = 0; i < rEdgeList[vertex].length; ++i) {
+            next = rEdgeList[vertex][i];
+            if (!vis[next])
+                dfs(next);
+        }
+    }
+
+    dfs(0);
+    for (i = 0; i < myGraph.NODES_COUNT; ++i)
+        if (!vis[i])
+            return false;
+
+    return true;
+}
+
 function FundamentalCycleList( myGraph ) {
-    var next, vis, rEdgeList, i;
+    var nvis, rEdgeList, i;
 
     rEdgeList = new Array(myGraph.NODES_COUNT);
     for (i = 0; i < myGraph.NODES_COUNT; ++i)
@@ -27,7 +88,7 @@ function FundamentalCycleList( myGraph ) {
     function dfs1(vertex) {
         vis[vertex] = 1;
         for (var i = 0; i < myGraph.NodeList[vertex].edges_list.length; ++i) {
-            next = myGraph.NodeList[vertex].edges_list[i];
+            var next = myGraph.NodeList[vertex].edges_list[i];
             if (!vis[next])
                 dfs1(next);
         }
@@ -37,7 +98,7 @@ function FundamentalCycleList( myGraph ) {
     function dfs2(vertex) {
         vis[vertex] = 1;
         for (var i = 0; i < rEdgeList[vertex].length; ++i) {
-            next = rEdgeList[vertex][i];
+            var next = rEdgeList[vertex][i];
             if (!vis[next])
                 dfs2(next);
         }
@@ -75,8 +136,7 @@ function Node( index ) {
 function Graph( NODES_COUNT ) {
     this.NODES_COUNT = NODES_COUNT;
 
-    this.inDegree = 0;
-    this.outDegree = 0;
+    this.WEIGHTED = 0 ;
 
     this.clear = function () {
         this.NODES_COUNT = null;
@@ -181,7 +241,7 @@ function Graph( NODES_COUNT ) {
         this.SourceNodes = null ;
         this.SinkNodes = null ;
         this.FundamentalCycles = null ;
-        this.RegularityInfo = null ;
+        this.AdditionalInfo = null ;
     };
 
     this.DistanceMatrix = null;
@@ -389,29 +449,54 @@ function Graph( NODES_COUNT ) {
         return this.FundamentalCycles ;
     } ;
 
-    this.RegularityInfo = null ;
-    this.getRegularityInfo = function() {
-        if (!this.RegularityInfo) {
-            if( !this.NODES_COUNT ) {
-                this.RegularityInfo = [[]] ;
-                return this.RegularityInfo ;
+    this.AdditionalInfo = null ;
+    this.getAdditionalInfo = function() {
+        if (!this.AdditionalInfo) {
+            if (!this.NODES_COUNT) {
+                this.AdditionalInfo = [[]];
+                return this.Additional;
             }
-            var i,
-                firstNodeIn = this.NodeList[0].inDegree ,
-                firstNodeOut = this.NodeList[0].outDegree ;
-            for( i = 1 ; i < this.NODES_COUNT ; ++i )
-                if( this.NodeList[i].inDegree != firstNodeIn ||
-                    this.NodeList[i].outDegree != firstNodeOut ) {
-                    this.RegularityInfo = new Array(1) ;
-                    this.RegularityInfo[0] = new Array(1) ;
-                    this.RegularityInfo[0][0] = "Graph is not regular" ;
-                    return this.RegularityInfo ;
-                }
-            this.RegularityInfo = new Array(1) ;
-            this.RegularityInfo[0] = new Array(1) ;
-            this.RegularityInfo[0][0] = "Graph is regular" ;
+            //weighted
+            //strong con
+            //weak con
+            //tree
+            //full
+            //dvudol
+            //k-dol
+            //chordal
+            this.AdditionalInfo = new Array(9) ;
+            var i ;
+            for( i = 0 ; i < 9 ; ++i )
+                this.AdditionalInfo[i] = new Array(2) ;
+            this.AdditionalInfo[0][0] = "-" ;
+
+            this.AdditionalInfo[0][1] = "State" ;
+            this.AdditionalInfo[1][0] = "Weighted" ;
+            this.AdditionalInfo[2][0] = "Strongly connected" ;
+            this.AdditionalInfo[3][0] = "Weakly connected" ;
+            this.AdditionalInfo[4][0] = "Tree-like" ;
+            this.AdditionalInfo[5][0] = "Full" ;
+            this.AdditionalInfo[6][0] = "Regular" ;
+            this.AdditionalInfo[7][0] = "Bipartite" ;
+            this.AdditionalInfo[8][0] = "Chordal" ;
+
+            this.AdditionalInfo[1][1] = ( this.WEIGHTED ? "+" : "-" ) ;
+
+            this.AdditionalInfo[2][1] = ( this.FundamentalCycles.length == 2 ? "+" : "-" ) ;
+
+            this.AdditionalInfo[3][1] = ( checkWeakConnectivity(this) ? "+" : "-" ) ;
+
+            this.AdditionalInfo[4][1] = ( this.FundamentalCycles.length == 1 + this.NODES_COUNT ? "+" : "-" ) ;
+
+            this.AdditionalInfo[5][1] = ( checkFullness(this) ? "+" : "-" ) ;
+
+            this.AdditionalInfo[6][1] = ( checkRegularity(this) ? "+" : "-" );
+
+            this.AdditionalInfo[7][1] = "+" ;
+
+            this.AdditionalInfo[8][1] = "+" ;
         }
-        return this.RegularityInfo ;
+        return this.AdditionalInfo ;
     }
 }
 
@@ -441,6 +526,10 @@ function readFile(evt) {
                     canvasGraph.init(recNumber);
                 else if (tempEdges == null)
                     tempEdges = recNumber;
+                else if( tempWeighted == null ) {
+                    tempWeighted = recNumber;
+                    canvasGraph.WEIGHTED = recNumber ;
+                }
                 else if (edgeParent == null)
                     edgeParent = recNumber - 1;
                 else if (edgeTo == null)
@@ -452,7 +541,7 @@ function readFile(evt) {
                 }
             }
 
-            var lastTemp = "", tempEdges = null, edgeParent = null, edgeTo = null;
+            var lastTemp = "", tempEdges = null, tempWeighted = null,  edgeParent = null, edgeTo = null;
             for (var i = 0, len = fileContent.length; i < len; ++i)
                 if (fileContent[i] == " " || fileContent[i] == "\n") {
                     if (lastTemp != "") {
@@ -475,7 +564,7 @@ function readFile(evt) {
             updateSourceNodesInfo();
             updateSinkNodesInfo();
             updateCyclesInfo();
-            updateRegularityInfo();
+            updateAdditionalInfo();
         };
 
         r.readAsText(f);
@@ -641,7 +730,7 @@ var divLinks = [
         document.body.getElementsByClassName("source-nodes")[0],
         document.body.getElementsByClassName("sink-nodes")[0],
         document.body.getElementsByClassName("cycles")[0],
-        document.body.getElementsByClassName("regularity")[0]
+        document.body.getElementsByClassName("additional")[0]
     ],
     divContentLinks = [
         document.body.getElementsByClassName("input-info-content")[0],
@@ -652,7 +741,7 @@ var divLinks = [
         document.body.getElementsByClassName("source-nodes-content")[0],
         document.body.getElementsByClassName("sink-nodes-content")[0],
         document.body.getElementsByClassName("cycles-content")[0],
-        document.body.getElementsByClassName("regularity-content")[0]
+        document.body.getElementsByClassName("additional-content")[0]
     ] ;
 
 function unsetZIndex() {
@@ -720,7 +809,7 @@ document.body.getElementsByTagName("li")[8].onclick = function() {
     unsetZIndex();
     divLinks[8].style.zIndex = 10;
 
-    updateRegularityInfo() ;
+    updateAdditionalInfo() ;
 };
 
 document.body.getElementsByTagName("li")[9].onclick = function() {
@@ -842,13 +931,12 @@ function updateCyclesInfo() {
     divContentLinks[7].appendChild(createTable(canvasGraph.getFundamentalCycles(), false));
 }
 
-function updateRegularityInfo() {
+function updateAdditionalInfo() {
     while (divContentLinks[8].getElementsByTagName("table")[0] != undefined)
         divContentLinks[8].removeChild(divLinks[8].getElementsByTagName("table")[0]);
-    divContentLinks[8].appendChild(createTable(canvasGraph.getRegularityInfo(), false));
-    divContentLinks[8].getElementsByTagName("tr")[0].getElementsByTagName("td")[0].style.padding = "10px" ;
-    divContentLinks[8].getElementsByTagName("tr")[0].getElementsByTagName("td")[0].style.width = "130px" ;
-    divContentLinks[8].getElementsByTagName("tr")[0].getElementsByTagName("td")[0].style.fontSize = "16px" ;
+    divContentLinks[8].appendChild(createTable(canvasGraph.getAdditionalInfo(), false));
+    divContentLinks[8].getElementsByTagName("tr")[0].getElementsByTagName("td")[0].style.width = "130px";
+    divContentLinks[8].getElementsByTagName("tr")[0].getElementsByTagName("td")[1].style.width = "50px";
 }
 
 /***********START GRAPH***********/
@@ -862,8 +950,13 @@ canvasGraph.init(7) ;
 })() ;
 canvasGraph.prepareToDisplay() ;
 
-updateInputInfo() ;
-updateAdjacencyMatrix() ;
-updateIncidenceMatrix() ;
-updateVerticesDegree() ;
+updateInputInfo();
+updateDistanceMatrix();
+updateAdjacencyMatrix();
+updateIncidenceMatrix();
+updateVerticesDegree();
+updateSourceNodesInfo();
+updateSinkNodesInfo();
+updateCyclesInfo();
+updateAdditionalInfo();
 /***********                 ***********/

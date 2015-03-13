@@ -155,7 +155,7 @@ body {
 .source-nodes,
 .sink-nodes,
 .cycles,
-.regularity {
+.additional {
     height: 540px ; width: 550px ;
     background: white ;
     position: absolute ; top: 0 ; left: 0 ;
@@ -173,7 +173,7 @@ body {
 .source-nodes p,
 .sink-nodes p,
 .cycles p,
-.regularity p {
+.additional p {
     margin-bottom: 20px ;
     font-family: Aller, sans-serif ; font-size: 18px ; color: rgb(50,50,50) ;
 }
@@ -194,7 +194,7 @@ body {
 .source-nodes-content,
 .sink-nodes-content,
 .cycles-content,
-.regularity-content {
+.additional-content {
     height: 490px ; max-height: 500px ; min-width: 490px ; width: 100% ;
     padding: 20px ;
     display: table-cell ;
