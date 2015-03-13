@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Test_canvas.iml" filepath="$PROJECT_DIR$/.idea/Test_canvas.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/GraphViewer.iml" filepath="$PROJECT_DIR$/.idea/GraphViewer.iml" />
     </modules>
   </component>
 </project>
