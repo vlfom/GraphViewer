@@ -256,6 +256,9 @@ function Graph( NODES_COUNT ) {
                     this.DistanceMatrix[i][j] = -1;
             for (i = 0; i < this.EDGES_COUNT; ++i)
                 this.DistanceMatrix[this.EdgeList[i].from][this.EdgeList[i].to] = this.EdgeList[i].weight;
+
+                for (i = 0; i < this.NODES_COUNT; ++i)
+                    	this.DistanceMatrix[i][i] = 0 ;
             for (k = 0; k < this.NODES_COUNT; ++k)
                 for (i = 0; i < this.NODES_COUNT; ++i)
                     for (j = 0; j < this.NODES_COUNT; ++j)
@@ -311,13 +314,16 @@ function Graph( NODES_COUNT ) {
             var i, j;
             this.AdjacencyMatrix = new Array(this.NODES_COUNT);
             for (i = 0; i < this.NODES_COUNT; ++i)
-                this.AdjacencyMatrix[i] = new Array(this.NODES_COUNT);
+                this.AdjacencyMatrix[i] = new Array(this.NODES_COUNT) ;
             for (i = 0; i < this.NODES_COUNT; ++i)
                 for (j = 0; j < this.NODES_COUNT; ++j)
                     this.AdjacencyMatrix[i][j] = 0;
             for (i = 0; i < this.NODES_COUNT; ++i)
                 for (j = 0; j < this.NodeList[i].edges_list.length; ++j)
                     this.AdjacencyMatrix[i][this.NodeList[i].edges_list[j]] = 1;
+            for(i = 0; i < this.NODES_COUNT ; ++i)    
+                this.AdjacencyMatrix[i][i] = 1 ;
+
         }
         return this.AdjacencyMatrix;
     };
@@ -464,9 +470,9 @@ function Graph( NODES_COUNT ) {
             //dvudol
             //k-dol
             //chordal
-            this.AdditionalInfo = new Array(9) ;
+            this.AdditionalInfo = new Array(7) ;
             var i ;
-            for( i = 0 ; i < 9 ; ++i )
+            for( i = 0 ; i < 7 ; ++i )
                 this.AdditionalInfo[i] = new Array(2) ;
             this.AdditionalInfo[0][0] = "-" ;
 
@@ -477,8 +483,8 @@ function Graph( NODES_COUNT ) {
             this.AdditionalInfo[4][0] = "Tree-like" ;
             this.AdditionalInfo[5][0] = "Full" ;
             this.AdditionalInfo[6][0] = "Regular" ;
-            this.AdditionalInfo[7][0] = "Bipartite" ;
-            this.AdditionalInfo[8][0] = "Chordal" ;
+            //this.AdditionalInfo[7][0] = "Bipartite" ;
+            //this.AdditionalInfo[8][0] = "Chordal" ;
 
             this.AdditionalInfo[1][1] = ( this.WEIGHTED ? "+" : "-" ) ;
 
@@ -492,9 +498,9 @@ function Graph( NODES_COUNT ) {
 
             this.AdditionalInfo[6][1] = ( checkRegularity(this) ? "+" : "-" );
 
-            this.AdditionalInfo[7][1] = "+" ;
+            //this.AdditionalInfo[7][1] = "+" ;
 
-            this.AdditionalInfo[8][1] = "+" ;
+            //this.AdditionalInfo[8][1] = "+" ;
         }
         return this.AdditionalInfo ;
     }
