@@ -4,147 +4,158 @@
 }
 
 * {
-    margin: 0 ;
-    padding: 0 ;
-    border: none ;
-    outline: none ;
-    list-style: none ;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    list-style: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    font-size: 0 ;
-    cursor: default ;
+    font-size: 0;
+    cursor: default;
 }
 
 html {
-    display: inline-table ;
-    height: 100% ;
+    display: inline-table;
+    height: 100%;
 }
 
 body {
-    height: 100% ;
-    display: table-cell ;
-    vertical-align: middle ;
-    text-align: center ;
+    height: 100%;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
 }
 
 .main,
 .user-interface {
-    width: 100% ;
-    text-align: center ;
+    width: 100%;
+    text-align: center;
 
-    display: inline-block ;
+    display: inline-block;
 }
 
 .graph-content,
 .user-interface-content {
-    display: inline-block ;
+    display: inline-block;
 
-    width: 1110px ;
+    width: 1110px;
 }
 
 .user-interface-content {
-    text-align: left ;
+    text-align: left;
 }
 
 .graph-content {
-    height: 550px ;
-    margin-bottom: 15px ;
+    height: 550px;
+    margin-bottom: 15px;
 }
 
 .graph-field,
 .graph-info {
-    float: left ;
-    display: inline-block ;
-    width: 550px ; height: 550px ;
+    float: left;
+    display: inline-block;
+    width: 550px;
+    height: 550px;
 }
 
 .graph-info {
 
-    overflow: hidden ;
-    float: right ;
-    background: white ;
-    position: relative ;
+    overflow: hidden;
+    float: right;
+    background: white;
+    position: relative;
 
-    border: 1px solid #aaa ;
-    border-radius: 5px ;
+    border: 1px solid #aaa;
+    border-radius: 5px;
 }
 
 .menu {
-    position: absolute ;
-    top: 0 ; left: 0 ;
+    position: absolute;
+    top: 0;
+    left: 0;
 
-    text-align: left ;
+    text-align: left;
 
-    padding: 5px ;
+    padding: 5px;
 
-    z-index: 25 ;
+    z-index: 25;
 }
 
 .menu-dropdown {
-    width: 95px ; height: 30px ; line-height: 29px ;
-    background: rgba(90,110,110,0.9) ;
+    width: 95px;
+    height: 30px;
+    line-height: 29px;
+    background: rgba(90, 110, 110, 0.9);
 
-    padding-right: 14px ;
+    padding-right: 14px;
 
-    text-align: center ;
-    color: white ;
+    text-align: center;
+    color: white;
 
-    border-radius: 5px ;
+    border-radius: 5px;
 }
 
 .menu-dropdown p {
-    display: inline-block ;
+    display: inline-block;
 }
 
 .menu-dropdown p:first-child {
-    font-size: 32px ; transform: scaleX(2) ;
+    font-size: 32px;
+    transform: scaleX(2);
 }
 
 .menu-dropdown p:last-child {
-    font-family: Aller, sans-serif ; font-size: 16px ; float: right ;
+    font-family: Aller, sans-serif;
+    font-size: 16px;
+    float: right;
 }
 
 .menu-dropdown:hover ~ ul, .menu ul:hover {
-    opacity: 1 ;
-    visibility: visible ;
-    height: auto ;
+    opacity: 1;
+    visibility: visible;
+    height: auto;
 
-    transform: translateY(0) ;
+    transform: translateY(0);
 }
 
 .menu ul {
-    height: 0 ;
-    overflow: hidden ;
+    height: 0;
+    overflow: hidden;
 
-    opacity: 0 ;
-    visibility: hidden ;
+    opacity: 0;
+    visibility: hidden;
 
-    padding-top: 5px ;
+    padding-top: 5px;
 
-    transition: 0.1s linear ;
-    transform: translateY(-5px) ;
+    transition: 0.1s linear;
+    transform: translateY(-5px);
 }
 
 .menu ul li {
-    background: rgba(256,256,256,0.9) ;
-    width: 130px ; height: 25px ; line-height: 25px ;
+    background: rgba(256, 256, 256, 0.9);
+    width: 130px;
+    height: 25px;
+    line-height: 25px;
 
-    margin: 5px auto 5px auto ;
-    padding: 5px 15px 5px 15px ;
-    border: 1px solid rgba(100,100,100,0.5) ;
-    border-radius: 5px ;
+    margin: 5px auto 5px auto;
+    padding: 5px 15px 5px 15px;
+    border: 1px solid rgba(100, 100, 100, 0.5);
+    border-radius: 5px;
 
-    font-family: Aller, sans-serif ; font-size: 14px ; color: rgb(50,50,50) ;
+    font-family: Aller, sans-serif;
+    font-size: 14px;
+    color: rgb(50, 50, 50);
 }
 
 .menu ul li:first-child {
-    margin-top: 0 ;
+    margin-top: 0;
 }
 
 .menu ul li:hover {
-    background: rgba(240,240,240,0.9) ;
+    background: rgba(240, 240, 240, 0.9);
 }
 
 .input-info,
@@ -156,13 +167,16 @@ body {
 .sink-nodes,
 .cycles,
 .additional {
-    height: 540px ; width: 550px ;
-    background: white ;
-    position: absolute ; top: 0 ; left: 0 ;
+    height: 540px;
+    width: 550px;
+    background: white;
+    position: absolute;
+    top: 0;
+    left: 0;
 
-    border-radius: 5px ;
+    border-radius: 5px;
 
-    display: inline-table ;
+    display: inline-table;
 }
 
 .input-info p,
@@ -174,16 +188,20 @@ body {
 .sink-nodes p,
 .cycles p,
 .additional p {
-    margin-bottom: 20px ;
-    font-family: Aller, sans-serif ; font-size: 18px ; color: rgb(50,50,50) ;
+    margin-bottom: 20px;
+    font-family: Aller, sans-serif;
+    font-size: 18px;
+    color: rgb(50, 50, 50);
 }
 
 .to_scroll {
-    position: relative ;
-    height: 550px ; max-height: 550px ;
-    width: 550px ; max-width: 550px ;
-    overflow: scroll ;
-    text-align: center ;
+    position: relative;
+    height: 550px;
+    max-height: 550px;
+    width: 550px;
+    max-width: 550px;
+    overflow: scroll;
+    text-align: center;
 }
 
 .input-info-content,
@@ -195,103 +213,109 @@ body {
 .sink-nodes-content,
 .cycles-content,
 .additional-content {
-    height: 490px ; max-height: 500px ; min-width: 490px ; width: 100% ;
-    padding: 20px ;
-    display: table-cell ;
-    vertical-align: middle ;
-    text-align: center ;
-    position: relative ;
-    overflow: hidden ;
+    height: 490px;
+    max-height: 500px;
+    min-width: 490px;
+    width: 100%;
+    padding: 20px;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
 input[type="file"] {
 }
 
 table {
-    position: relative ;
-    display: inline ;
-    margin: 5px ;
-
-    border-spacing: 0 ;
-
+    position: relative;
+    display: inline;
+    margin: 5px;
+    border-spacing: 0;
 }
 
 table:last-child {
-    margin-right: 0 ;
+    margin-right: 0;
 }
 
 tr {
-    text-align: center ;
+    text-align: center;
 }
 
 td:hover {
-    background: #ddd ;
+    background: #ddd;
 }
 
 td {
-    width: 22px ; min-width: 22px ; height: 22px ; min-height: 22px ;
-    background: #eee ;
-    text-align: center ;
+    width: 22px;
+    min-width: 22px;
+    height: 22px;
+    min-height: 22px;
+    background: #eee;
+    text-align: center;
 
-    font-family: Aller, sans-serif ; font-size: 12px ; color: rgb(50,50,50) ;
+    font-family: Aller, sans-serif;
+    font-size: 12px;
+    color: rgb(50, 50, 50);
 
-    cursor: pointer ;
+    cursor: pointer;
 }
 
 tr:first-child td,
 td:first-child {
-    cursor: default ;
+    cursor: default;
 }
 
 tr:first-child td {
-    border-top: 1px solid black ;
-    border-bottom: 1px solid black ;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
 
-    background: lightcyan ;
+    background: lightcyan;
 }
 
 tr:last-child td {
-    border-bottom: 1px solid black ;
+    border-bottom: 1px solid black;
 }
 
 td:first-child {
-    border-left: 1px solid black ;
-    border-right: 1px solid black ;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
 
-    background: lightcyan ;
+    background: lightcyan;
 }
 
 td:last-child {
-    border-right: 1px solid black ;
+    border-right: 1px solid black;
 }
 
 tr:first-child td:first-child {
-    background: lightblue ;
+    background: lightblue;
 }
 
 tr:first-child td:first-child {
-    border-top-left-radius: 5px ;
+    border-top-left-radius: 5px;
 }
+
 tr:first-child td:last-child {
-    border-top-right-radius: 5px ;
-}
-tr:last-child td:first-child {
-    border-bottom-left-radius: 5px ;
-}
-tr:last-child td:last-child {
-    border-bottom-right-radius: 5px ;
+    border-top-right-radius: 5px;
 }
 
-canvas
-{
-    background: white ;
+tr:last-child td:first-child {
+    border-bottom-left-radius: 5px;
+}
+
+tr:last-child td:last-child {
+    border-bottom-right-radius: 5px;
+}
+
+canvas {
+    background: white;
     border: 1px solid #aaa;
     border-radius: 5px;
-
-    /* this fixes the overflow:hidden in Chrome/Opera */
     -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
 }
 
 input {
-    font-size: 14px ;
+    font-size: 14px;
 }
