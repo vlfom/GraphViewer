@@ -503,7 +503,19 @@ function Graph(NODES_COUNT) {
             //this.AdditionalInfo[8][1] = "+" ;
         }
         return this.AdditionalInfo;
-    }
+    } ;
+
+    this.updateInfo = function() {
+        updateInputInfo();
+        updateDistanceMatrix();
+        updateAdjacencyMatrix();
+        updateIncidenceMatrix();
+        updateVerticesDegree();
+        updateSourceNodesInfo();
+        updateSinkNodesInfo();
+        updateCyclesInfo();
+        updateAdditionalInfo();
+    } ;
 }
 
 function refreshImage() {
@@ -561,16 +573,7 @@ function readFile(evt) {
                 processReadNumber(lastTemp);
 
             canvasGraph.prepareToDisplay();
-
-            updateInputInfo();
-            updateDistanceMatrix();
-            updateAdjacencyMatrix();
-            updateIncidenceMatrix();
-            updateVerticesDegree();
-            updateSourceNodesInfo();
-            updateSinkNodesInfo();
-            updateCyclesInfo();
-            updateAdditionalInfo();
+            canvasGraph.updateInfo() ;
         };
 
         r.readAsText(f);
@@ -769,24 +772,26 @@ var divLinks = [
 })() ;
 
 function getDivFunction(divIndex) {
-    if( divIndex == 0 )
-        return updateInputInfo ;
-    if( divIndex == 1 )
-        return updateDistanceMatrix ;
-    if( divIndex == 2 )
-        return updateAdjacencyMatrix ;
-    if( divIndex == 3 )
-        return updateIncidenceMatrix ;
-    if( divIndex == 4 )
-        return updateVerticesDegree ;
-    if( divIndex == 5 )
-        return updateSourceNodesInfo ;
-    if( divIndex == 6 )
-        return updateSinkNodesInfo ;
-    if( divIndex == 7 )
-        return updateCyclesInfo ;
-    if( divIndex == 8 )
-        return updateAdditionalInfo ;
+    switch(divIndex) {
+        case 0:
+            return updateInputInfo ;
+        case 1:
+            return updateDistanceMatrix ;
+        case 2:
+            return updateAdjacencyMatrix ;
+        case 3:
+            return updateIncidenceMatrix ;
+        case 4:
+            return updateVerticesDegree ;
+        case 5:
+            return updateSourceNodesInfo ;
+        case 6:
+            return updateSinkNodesInfo ;
+        case 7:
+            return updateCyclesInfo ;
+        case 8:
+            return updateAdditionalInfo ;
+    }
 }
 
 document.body.getElementsByTagName("li")[divsCount].onclick = function () {
@@ -830,9 +835,13 @@ function createTable(matrix, addIndexes) {
     return newTable;
 }
 
+function removeDivTables(divIndex) {
+    while (divContentLinks[divIndex].getElementsByTagName("table")[divIndex] != undefined)
+        divContentLinks[divIndex].removeChild(divLinks[divIndex].getElementsByTagName("table")[divIndex]);
+}
+
 function updateInputInfo() {
-    while (divContentLinks[0].getElementsByTagName("table")[0] != undefined)
-        divContentLinks[0].removeChild(divLinks[0].getElementsByTagName("table")[0]);
+    removeDivTables(0) ;
     var i;
     for (i = 0; i < canvasGraph.getFormattedEdgesList().length; ++i)
         divContentLinks[0].appendChild(createTable(canvasGraph.getFormattedEdgesList()[i], false, 40));
@@ -846,26 +855,22 @@ function updateInputInfo() {
 }
 
 function updateDistanceMatrix() {
-    while (divContentLinks[1].getElementsByTagName("table")[0] != undefined)
-        divContentLinks[1].removeChild(divLinks[1].getElementsByTagName("table")[0]);
+    removeDivTables(1) ;
     divContentLinks[1].appendChild(createTable(canvasGraph.getDistanceMatrix(), true));
 }
 
 function updateAdjacencyMatrix() {
-    while (divContentLinks[2].getElementsByTagName("table")[0] != undefined)
-        divContentLinks[2].removeChild(divLinks[2].getElementsByTagName("table")[0]);
+    removeDivTables(2) ;
     divContentLinks[2].appendChild(createTable(canvasGraph.getAdjacencyMatrix(), true));
 }
 
 function updateIncidenceMatrix() {
-    while (divContentLinks[3].getElementsByTagName("table")[0] != undefined)
-        divContentLinks[3].removeChild(divLinks[3].getElementsByTagName("table")[0]);
+    removeDivTables(3) ;
     divContentLinks[3].appendChild(createTable(canvasGraph.getIncidenceMatrix(), true));
 }
 
 function updateVerticesDegree() {
-    while (divContentLinks[4].getElementsByTagName("table")[0] != undefined)
-        divContentLinks[4].removeChild(divLinks[4].getElementsByTagName("table")[0]);
+    removeDivTables(4) ;
     var i;
     for (i = 0; i < canvasGraph.getFormattedVerticesDegree().length; ++i)
         divContentLinks[4].appendChild(createTable(canvasGraph.getFormattedVerticesDegree()[i], false, 40));
@@ -877,8 +882,7 @@ function updateVerticesDegree() {
 }
 
 function updateSourceNodesInfo() {
-    while (divContentLinks[5].getElementsByTagName("table")[0] != undefined)
-        divContentLinks[5].removeChild(divLinks[5].getElementsByTagName("table")[0]);
+    removeDivTables(5) ;
     var i;
     for (i = 0; i < canvasGraph.getSourceNodes().length; ++i)
         divContentLinks[5].appendChild(createTable(canvasGraph.getSourceNodes()[i], false));
@@ -890,8 +894,7 @@ function updateSourceNodesInfo() {
 }
 
 function updateSinkNodesInfo() {
-    while (divContentLinks[6].getElementsByTagName("table")[0] != undefined)
-        divContentLinks[6].removeChild(divLinks[6].getElementsByTagName("table")[0]);
+    removeDivTables(6) ;
     var i;
     for (i = 0; i < canvasGraph.getSourceNodes().length; ++i)
         divContentLinks[6].appendChild(createTable(canvasGraph.getSinkNodes()[i], false));
@@ -903,35 +906,26 @@ function updateSinkNodesInfo() {
 }
 
 function updateCyclesInfo() {
-    while (divContentLinks[7].getElementsByTagName("table")[0] != undefined)
-        divContentLinks[7].removeChild(divLinks[7].getElementsByTagName("table")[0]);
+    removeDivTables(7) ;
     divContentLinks[7].appendChild(createTable(canvasGraph.getFundamentalCycles(), false));
 }
 
 function updateAdditionalInfo() {
-    while (divContentLinks[8].getElementsByTagName("table")[0] != undefined)
-        divContentLinks[8].removeChild(divLinks[8].getElementsByTagName("table")[0]);
+    removeDivTables(8) ;
     divContentLinks[8].appendChild(createTable(canvasGraph.getAdditionalInfo(), false));
     divContentLinks[8].getElementsByTagName("tr")[0].getElementsByTagName("td")[0].style.width = "130px";
     divContentLinks[8].getElementsByTagName("tr")[0].getElementsByTagName("td")[1].style.width = "50px";
 }
 
-canvasGraph.clear();
-canvasGraph.init(7);
-(function () {
-    for (var i = 0; i < 7; ++i)
-        for (var j = 0; j < 7; ++j)
-            if (i != j)
-                canvasGraph.addEdge(i, j);
-})();
-canvasGraph.prepareToDisplay();
-
-updateInputInfo();
-updateDistanceMatrix();
-updateAdjacencyMatrix();
-updateIncidenceMatrix();
-updateVerticesDegree();
-updateSourceNodesInfo();
-updateSinkNodesInfo();
-updateCyclesInfo();
-updateAdditionalInfo();
+(function() {
+    canvasGraph.clear();
+    canvasGraph.init(7);
+    (function () {
+        for (var i = 0; i < 7; ++i)
+            for (var j = 0; j < 7; ++j)
+                if (i != j)
+                    canvasGraph.addEdge(i, j);
+    })();
+    canvasGraph.prepareToDisplay();
+    canvasGraph.updateInfo() ;
+})() ;
