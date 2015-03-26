@@ -134,79 +134,81 @@ function Node(index) {
 }
 
 function Graph(NODES_COUNT) {
+    var cThis = this;
+    
     this.NODES_COUNT = NODES_COUNT;
 
     this.WEIGHTED = 0;
 
     this.clear = function () {
-        this.NODES_COUNT = null;
-        this.EDGES_COUNT = 0;
-        this.NodeList = [];
-        this.EdgeList = [];
-        this.notifyGraphChanged();
+        cThis.NODES_COUNT = null;
+        cThis.EDGES_COUNT = 0;
+        cThis.NodeList = [];
+        cThis.EdgeList = [];
+        cThis.notifyGraphChanged();
     };
 
     this.init = function (nodeCount) {
-        this.NODES_COUNT = nodeCount;
-        for (var i = 0; i < this.NODES_COUNT; ++i)
-            this.NodeList.push(new Node(i));
+        cThis.NODES_COUNT = nodeCount;
+        for (var i = 0; i < cThis.NODES_COUNT; ++i)
+            cThis.NodeList.push(new Node(i));
     };
 
     this.prepareToDisplay = function () {
-        this.COLOR_SEED = Math.floor(Math.random() * 100);
+        cThis.COLOR_SEED = Math.floor(Math.random() * 100);
 
         var sX = canvasWidth / 2,
             sY = canvasHeight / 2,
             cAngle = 0,
-            dAngle = 2 * Math.PI / this.NODES_COUNT;
+            dAngle = 2 * Math.PI / cThis.NODES_COUNT;
 
-        for (var i = 0; i < this.NODES_COUNT; ++i) {
-            this.NodeList[i].x = this.NodeList[i].fX = sX + CIRCLE_RADIUS * Math.cos(cAngle);
-            this.NodeList[i].y = this.NodeList[i].fY = sY + CIRCLE_RADIUS * Math.sin(cAngle);
+        for (var i = 0; i < cThis.NODES_COUNT; ++i) {
+            cThis.NodeList[i].x = cThis.NodeList[i].fX = sX + CIRCLE_RADIUS * Math.cos(cAngle);
+            cThis.NodeList[i].y = cThis.NodeList[i].fY = sY + CIRCLE_RADIUS * Math.sin(cAngle);
             cAngle += dAngle;
         }
     };
 
     this.addEdge = function (nodeStart, nodeFinish, nodeWeight) {
-        ++this.EDGES_COUNT;
+        ++cThis.EDGES_COUNT;
 
-        this.NodeList[nodeStart].appendEdge(nodeFinish);
-        this.EdgeList.push({from: nodeStart, to: nodeFinish, weight: nodeWeight});
+        cThis.NodeList[nodeStart].appendEdge(nodeFinish);
+        cThis.EdgeList.push({from: nodeStart, to: nodeFinish, weight: nodeWeight});
 
-        ++this.NodeList[nodeStart].outDegree;
-        ++this.NodeList[nodeFinish].inDegree;
+        ++cThis.NodeList[nodeStart].outDegree;
+        ++cThis.NodeList[nodeFinish].inDegree;
 
-        this.notifyGraphChanged();
+        cThis.notifyGraphChanged();
     };
 
     this.display = function (context, indexToDisplay) {
         if (typeof indexToDisplay == "undefined") {
             var i;
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                this.displayVertex(context, i);
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                this.displayEdgesFromVertex(context, i);
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                cThis.displayVertex(context, i);
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                cThis.displayEdgesFromVertex(context, i);
         }
         else {
-            this.displayVertex(context, indexToDisplay);
-            this.displayEdgesFromVertex(context, indexToDisplay);
+            cThis.displayVertex(context, indexToDisplay);
+            cThis.displayEdgesFromVertex(context, indexToDisplay);
         }
     };
 
     this.displayVertex = function (context, indexToDisplay) {
-        context.fillStyle = COLOR_LIST[(this.COLOR_SEED + indexToDisplay) % COLOR_LIST.length];
+        context.fillStyle = COLOR_LIST[(cThis.COLOR_SEED + indexToDisplay) % COLOR_LIST.length];
         context.beginPath();
-        context.arc(this.NodeList[indexToDisplay].x, this.NodeList[indexToDisplay].y, VERTEX_RADIUS, 0, 2 * Math.PI);
+        context.arc(cThis.NodeList[indexToDisplay].x, cThis.NodeList[indexToDisplay].y, VERTEX_RADIUS, 0, 2 * Math.PI);
         context.fill();
         context.strokeStyle = "black";
         context.lineWidth = 1;
         context.beginPath();
-        context.arc(this.NodeList[indexToDisplay].x, this.NodeList[indexToDisplay].y, VERTEX_RADIUS, 0, 2 * Math.PI);
+        context.arc(cThis.NodeList[indexToDisplay].x, cThis.NodeList[indexToDisplay].y, VERTEX_RADIUS, 0, 2 * Math.PI);
         context.stroke();
         context.fillStyle = "white";
         context.font = "20px Consolas";
         var numberLength = Math.floor(Math.log(indexToDisplay + 1) / Math.log(10) + 1e-5);
-        context.fillText((indexToDisplay + 1) + "", this.NodeList[indexToDisplay].x - 5.5 * numberLength - 5, this.NodeList[indexToDisplay].y + 7);
+        context.fillText((indexToDisplay + 1) + "", cThis.NodeList[indexToDisplay].x - 5.5 * numberLength - 5, cThis.NodeList[indexToDisplay].y + 7);
     };
 
     this.displayEdgesFromVertex = function (context, nodeStart, color, width) {
@@ -215,12 +217,12 @@ function Graph(NODES_COUNT) {
 
         context.strokeStyle = context.fillStyle = color;
         context.lineWidth = width;
-        for (var i = 0; i < this.NodeList[nodeStart].edges_list.length; ++i) {
-            if (this.NodeList[nodeStart] == this.NodeList[this.NodeList[nodeStart].edges_list[i]])
-                canvas.drawArrow(this.NodeList[nodeStart], this.NodeList[nodeStart], context);
+        for (var i = 0; i < cThis.NodeList[nodeStart].edges_list.length; ++i) {
+            if (cThis.NodeList[nodeStart] == cThis.NodeList[cThis.NodeList[nodeStart].edges_list[i]])
+                canvas.drawArrow(cThis.NodeList[nodeStart], cThis.NodeList[nodeStart], context);
             else {
-                var point1 = jQuery.extend({}, this.NodeList[nodeStart]),
-                    point2 = jQuery.extend({}, this.NodeList[this.NodeList[nodeStart].edges_list[i]]);
+                var point1 = jQuery.extend({}, cThis.NodeList[nodeStart]),
+                    point2 = jQuery.extend({}, cThis.NodeList[cThis.NodeList[nodeStart].edges_list[i]]);
 
                 var shortenedLine = canvas.shortenLine(point1, point2, VERTEX_RADIUS);
                 canvas.drawArrow(shortenedLine[0], shortenedLine[1], context);
@@ -229,238 +231,238 @@ function Graph(NODES_COUNT) {
     };
 
     this.getVertex = function (nodeIndex) {
-        return this.NodeList[nodeIndex];
+        return cThis.NodeList[nodeIndex];
     };
 
     this.notifyGraphChanged = function () {
-        this.FormattedEdgesList = null;
-        this.DistanceMatrix = null;
-        this.AdjacencyMatrix = null;
-        this.IncidenceMatrix = null;
-        this.FormattedVerticesDegree = null;
-        this.SourceNodes = null;
-        this.SinkNodes = null;
-        this.FundamentalCycles = null;
-        this.AdditionalInfo = null;
+        cThis.FormattedEdgesList = null;
+        cThis.DistanceMatrix = null;
+        cThis.AdjacencyMatrix = null;
+        cThis.IncidenceMatrix = null;
+        cThis.FormattedVerticesDegree = null;
+        cThis.SourceNodes = null;
+        cThis.SinkNodes = null;
+        cThis.FundamentalCycles = null;
+        cThis.AdditionalInfo = null;
     };
 
     this.DistanceMatrix = null;
     this.getDistanceMatrix = function () {
-        if (!this.DistanceMatrix) {
+        if (!cThis.DistanceMatrix) {
             var i, j, k;
-            this.DistanceMatrix = new Array(this.NODES_COUNT);
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                this.DistanceMatrix[i] = new Array(this.NODES_COUNT);
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                for (j = 0; j < this.NODES_COUNT; ++j)
-                    this.DistanceMatrix[i][j] = -1;
-            for (i = 0; i < this.EDGES_COUNT; ++i)
-                this.DistanceMatrix[this.EdgeList[i].from][this.EdgeList[i].to] = this.EdgeList[i].weight;
+            cThis.DistanceMatrix = new Array(cThis.NODES_COUNT);
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                cThis.DistanceMatrix[i] = new Array(cThis.NODES_COUNT);
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                for (j = 0; j < cThis.NODES_COUNT; ++j)
+                    cThis.DistanceMatrix[i][j] = -1;
+            for (i = 0; i < cThis.EDGES_COUNT; ++i)
+                cThis.DistanceMatrix[cThis.EdgeList[i].from][cThis.EdgeList[i].to] = cThis.EdgeList[i].weight;
 
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                this.DistanceMatrix[i][i] = 0;
-            for (k = 0; k < this.NODES_COUNT; ++k)
-                for (i = 0; i < this.NODES_COUNT; ++i)
-                    for (j = 0; j < this.NODES_COUNT; ++j)
-                        if (this.DistanceMatrix[i][k] != -1 && this.DistanceMatrix[k][j] != -1) {
-                            if (this.DistanceMatrix[i][j] == -1)
-                                this.DistanceMatrix[i][j] = this.DistanceMatrix[i][k] + this.DistanceMatrix[k][j];
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                cThis.DistanceMatrix[i][i] = 0;
+            for (k = 0; k < cThis.NODES_COUNT; ++k)
+                for (i = 0; i < cThis.NODES_COUNT; ++i)
+                    for (j = 0; j < cThis.NODES_COUNT; ++j)
+                        if (cThis.DistanceMatrix[i][k] != -1 && cThis.DistanceMatrix[k][j] != -1) {
+                            if (cThis.DistanceMatrix[i][j] == -1)
+                                cThis.DistanceMatrix[i][j] = cThis.DistanceMatrix[i][k] + cThis.DistanceMatrix[k][j];
                             else
-                                this.DistanceMatrix[i][j] = Math.min(this.DistanceMatrix[i][j], this.DistanceMatrix[i][k] + this.DistanceMatrix[k][j]);
+                                cThis.DistanceMatrix[i][j] = Math.min(cThis.DistanceMatrix[i][j], cThis.DistanceMatrix[i][k] + cThis.DistanceMatrix[k][j]);
                         }
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                for (j = 0; j < this.NODES_COUNT; ++j)
-                    if (isNaN(this.DistanceMatrix[i][j]))
-                        this.DistanceMatrix[i][j] = -1;
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                for (j = 0; j < cThis.NODES_COUNT; ++j)
+                    if (isNaN(cThis.DistanceMatrix[i][j]))
+                        cThis.DistanceMatrix[i][j] = -1;
         }
-        return this.DistanceMatrix;
+        return cThis.DistanceMatrix;
     };
 
     this.FormattedEdgesList = null;
     this.getFormattedEdgesList = function () {
-        if (!this.FormattedEdgesList) {
+        if (!cThis.FormattedEdgesList) {
             var i, j,
                 EDGES_PER_COLUMN = 20,
-                subMatricesCount = Math.floor((this.EDGES_COUNT - 1) / EDGES_PER_COLUMN) + 1;
-            this.FormattedEdgesList = new Array(subMatricesCount);
+                subMatricesCount = Math.floor((cThis.EDGES_COUNT - 1) / EDGES_PER_COLUMN) + 1;
+            cThis.FormattedEdgesList = new Array(subMatricesCount);
             for (i = 0; i < subMatricesCount; ++i) {
                 if (i < subMatricesCount - 1)
-                    this.FormattedEdgesList[i] = new Array(EDGES_PER_COLUMN + 1);
+                    cThis.FormattedEdgesList[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
-                    this.FormattedEdgesList[i] = new Array(2 + (this.EDGES_COUNT - 1) % EDGES_PER_COLUMN);
-                for (j = 0; j < this.FormattedEdgesList[i].length; ++j)
-                    this.FormattedEdgesList[i][j] = new Array(4);
-                this.FormattedEdgesList[i][0][0] = "";
-                this.FormattedEdgesList[i][0][1] = "From";
-                this.FormattedEdgesList[i][0][2] = "To";
-                this.FormattedEdgesList[i][0][3] = "Weight";
-                for (j = 1; j < this.FormattedEdgesList[i].length; ++j) {
-                    this.FormattedEdgesList[i][j][0] = j + i * EDGES_PER_COLUMN + " edge";
-                    this.FormattedEdgesList[i][j][1] = this.EdgeList[j - 1 + i * EDGES_PER_COLUMN].from + 1;
-                    this.FormattedEdgesList[i][j][2] = this.EdgeList[j - 1 + i * EDGES_PER_COLUMN].to + 1;
-                    if (this.EdgeList[j - 1 + i * EDGES_PER_COLUMN].weight == undefined)
-                        this.FormattedEdgesList[i][j][3] = "NaN";
+                    cThis.FormattedEdgesList[i] = new Array(2 + (cThis.EDGES_COUNT - 1) % EDGES_PER_COLUMN);
+                for (j = 0; j < cThis.FormattedEdgesList[i].length; ++j)
+                    cThis.FormattedEdgesList[i][j] = new Array(4);
+                cThis.FormattedEdgesList[i][0][0] = "";
+                cThis.FormattedEdgesList[i][0][1] = "From";
+                cThis.FormattedEdgesList[i][0][2] = "To";
+                cThis.FormattedEdgesList[i][0][3] = "Weight";
+                for (j = 1; j < cThis.FormattedEdgesList[i].length; ++j) {
+                    cThis.FormattedEdgesList[i][j][0] = j + i * EDGES_PER_COLUMN + " edge";
+                    cThis.FormattedEdgesList[i][j][1] = cThis.EdgeList[j - 1 + i * EDGES_PER_COLUMN].from + 1;
+                    cThis.FormattedEdgesList[i][j][2] = cThis.EdgeList[j - 1 + i * EDGES_PER_COLUMN].to + 1;
+                    if (cThis.EdgeList[j - 1 + i * EDGES_PER_COLUMN].weight == undefined)
+                        cThis.FormattedEdgesList[i][j][3] = "NaN";
                     else
-                        this.FormattedEdgesList[i][j][3] = this.EdgeList[j - 1 + i * EDGES_PER_COLUMN].weight;
+                        cThis.FormattedEdgesList[i][j][3] = cThis.EdgeList[j - 1 + i * EDGES_PER_COLUMN].weight;
                 }
             }
         }
-        return this.FormattedEdgesList;
+        return cThis.FormattedEdgesList;
     };
 
     this.AdjacencyMatrix = null;
     this.getAdjacencyMatrix = function () {
-        if (!this.AdjacencyMatrix) {
+        if (!cThis.AdjacencyMatrix) {
             var i, j;
-            this.AdjacencyMatrix = new Array(this.NODES_COUNT);
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                this.AdjacencyMatrix[i] = new Array(this.NODES_COUNT);
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                for (j = 0; j < this.NODES_COUNT; ++j)
-                    this.AdjacencyMatrix[i][j] = 0;
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                for (j = 0; j < this.NodeList[i].edges_list.length; ++j)
-                    this.AdjacencyMatrix[i][this.NodeList[i].edges_list[j]] = 1;
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                this.AdjacencyMatrix[i][i] = 1;
+            cThis.AdjacencyMatrix = new Array(cThis.NODES_COUNT);
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                cThis.AdjacencyMatrix[i] = new Array(cThis.NODES_COUNT);
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                for (j = 0; j < cThis.NODES_COUNT; ++j)
+                    cThis.AdjacencyMatrix[i][j] = 0;
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                for (j = 0; j < cThis.NodeList[i].edges_list.length; ++j)
+                    cThis.AdjacencyMatrix[i][cThis.NodeList[i].edges_list[j]] = 1;
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                cThis.AdjacencyMatrix[i][i] = 1;
 
         }
-        return this.AdjacencyMatrix;
+        return cThis.AdjacencyMatrix;
     };
 
     this.IncidenceMatrix = null;
     this.getIncidenceMatrix = function () {
-        if (!this.IncidenceMatrix) {
+        if (!cThis.IncidenceMatrix) {
             var i, j;
-            this.IncidenceMatrix = new Array(this.NODES_COUNT);
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                this.IncidenceMatrix[i] = new Array(this.EDGES_COUNT);
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                for (j = 0; j < this.EDGES_COUNT; ++j)
-                    if (this.EdgeList[j].from == i && this.EdgeList[j].to == i)
-                        this.IncidenceMatrix[i][j] = "L";
-                    else if (this.EdgeList[j].from == i)
-                        this.IncidenceMatrix[i][j] = -1;
-                    else if (this.EdgeList[j].to == i)
-                        this.IncidenceMatrix[i][j] = 1;
+            cThis.IncidenceMatrix = new Array(cThis.NODES_COUNT);
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                cThis.IncidenceMatrix[i] = new Array(cThis.EDGES_COUNT);
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                for (j = 0; j < cThis.EDGES_COUNT; ++j)
+                    if (cThis.EdgeList[j].from == i && cThis.EdgeList[j].to == i)
+                        cThis.IncidenceMatrix[i][j] = "L";
+                    else if (cThis.EdgeList[j].from == i)
+                        cThis.IncidenceMatrix[i][j] = -1;
+                    else if (cThis.EdgeList[j].to == i)
+                        cThis.IncidenceMatrix[i][j] = 1;
                     else
-                        this.IncidenceMatrix[i][j] = 0;
+                        cThis.IncidenceMatrix[i][j] = 0;
         }
-        return this.IncidenceMatrix;
+        return cThis.IncidenceMatrix;
     };
 
     this.FormattedVerticesDegree = null;
     this.getFormattedVerticesDegree = function () {
-        if (!this.FormattedVerticesDegree) {
+        if (!cThis.FormattedVerticesDegree) {
             var i, j, k,
-                subMatricesCount = Math.floor((this.NODES_COUNT - 1) / 15) + 1;
-            this.FormattedVerticesDegree = new Array(subMatricesCount);
+                subMatricesCount = Math.floor((cThis.NODES_COUNT - 1) / 15) + 1;
+            cThis.FormattedVerticesDegree = new Array(subMatricesCount);
             for (i = 0; i < subMatricesCount; ++i) {
                 if (i < subMatricesCount - 1)
-                    this.FormattedVerticesDegree[i] = new Array(16);
+                    cThis.FormattedVerticesDegree[i] = new Array(16);
                 else
-                    this.FormattedVerticesDegree[i] = new Array(2 + (this.NODES_COUNT - 1) % 15);
-                for (j = 0; j < this.FormattedVerticesDegree[i].length; ++j) {
-                    this.FormattedVerticesDegree[i][j] = new Array(3);
-                    this.FormattedVerticesDegree[i][j][1] = 0;
+                    cThis.FormattedVerticesDegree[i] = new Array(2 + (cThis.NODES_COUNT - 1) % 15);
+                for (j = 0; j < cThis.FormattedVerticesDegree[i].length; ++j) {
+                    cThis.FormattedVerticesDegree[i][j] = new Array(3);
+                    cThis.FormattedVerticesDegree[i][j][1] = 0;
                 }
-                this.FormattedVerticesDegree[i][0][0] = "";
-                this.FormattedVerticesDegree[i][0][1] = "In-deg";
-                this.FormattedVerticesDegree[i][0][2] = "Out-deg";
-                for (j = 1; j < this.FormattedVerticesDegree[i].length; ++j) {
-                    this.FormattedVerticesDegree[i][j][0] = j + i * 15 + " edge";
-                    this.FormattedVerticesDegree[i][j][1] = this.NodeList[j - 1 + i * 15].inDegree;
-                    this.FormattedVerticesDegree[i][j][2] = this.NodeList[j - 1 + i * 15].outDegree;
+                cThis.FormattedVerticesDegree[i][0][0] = "";
+                cThis.FormattedVerticesDegree[i][0][1] = "In-deg";
+                cThis.FormattedVerticesDegree[i][0][2] = "Out-deg";
+                for (j = 1; j < cThis.FormattedVerticesDegree[i].length; ++j) {
+                    cThis.FormattedVerticesDegree[i][j][0] = j + i * 15 + " edge";
+                    cThis.FormattedVerticesDegree[i][j][1] = cThis.NodeList[j - 1 + i * 15].inDegree;
+                    cThis.FormattedVerticesDegree[i][j][2] = cThis.NodeList[j - 1 + i * 15].outDegree;
                 }
             }
         }
-        return this.FormattedVerticesDegree;
+        return cThis.FormattedVerticesDegree;
     };
 
     this.SourceNodes = null;
     this.getSourceNodes = function () {
-        if (!this.SourceNodes) {
+        if (!cThis.SourceNodes) {
             var i, j, allIsolated = [],
                 EDGES_PER_COLUMN = 15;
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                if (this.NodeList[i].inDegree == 0)
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                if (cThis.NodeList[i].inDegree == 0)
                     allIsolated.push(i + 1);
             var subMatricesCount = Math.floor((allIsolated.length - 1) / EDGES_PER_COLUMN) + 1;
-            this.SourceNodes = new Array(subMatricesCount);
+            cThis.SourceNodes = new Array(subMatricesCount);
             for (i = 0; i < subMatricesCount; ++i) {
                 if (i < subMatricesCount - 1)
-                    this.SourceNodes[i] = new Array(EDGES_PER_COLUMN + 1);
+                    cThis.SourceNodes[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
-                    this.SourceNodes[i] = new Array(2 + (allIsolated.length - 1) % EDGES_PER_COLUMN);
-                this.SourceNodes[i][0] = new Array(2);
-                this.SourceNodes[i][0][0] = "Edge";
-                this.SourceNodes[i][0][1] = "In-Degree";
-                for (j = 1; j < this.SourceNodes[i].length; ++j) {
-                    this.SourceNodes[i][j] = new Array(2);
-                    this.SourceNodes[i][j][0] = allIsolated[j - 1];
-                    this.SourceNodes[i][j][1] = 0;
+                    cThis.SourceNodes[i] = new Array(2 + (allIsolated.length - 1) % EDGES_PER_COLUMN);
+                cThis.SourceNodes[i][0] = new Array(2);
+                cThis.SourceNodes[i][0][0] = "Edge";
+                cThis.SourceNodes[i][0][1] = "In-Degree";
+                for (j = 1; j < cThis.SourceNodes[i].length; ++j) {
+                    cThis.SourceNodes[i][j] = new Array(2);
+                    cThis.SourceNodes[i][j][0] = allIsolated[j - 1];
+                    cThis.SourceNodes[i][j][1] = 0;
                 }
             }
         }
-        return this.SourceNodes;
+        return cThis.SourceNodes;
     };
 
     this.SinkNodes = null;
     this.getSinkNodes = function () {
-        if (!this.SinkNodes) {
+        if (!cThis.SinkNodes) {
             var i, j, allLeafs = [],
                 EDGES_PER_COLUMN = 15;
-            for (i = 0; i < this.NODES_COUNT; ++i)
-                if (this.NodeList[i].outDegree == 0)
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                if (cThis.NodeList[i].outDegree == 0)
                     allLeafs.push(i + 1);
             var subMatricesCount = Math.floor((allLeafs.length - 1) / EDGES_PER_COLUMN) + 1;
-            this.SinkNodes = new Array(subMatricesCount);
+            cThis.SinkNodes = new Array(subMatricesCount);
             for (i = 0; i < subMatricesCount; ++i) {
                 if (i < subMatricesCount - 1)
-                    this.SinkNodes[i] = new Array(EDGES_PER_COLUMN + 1);
+                    cThis.SinkNodes[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
-                    this.SinkNodes[i] = new Array(2 + (allLeafs.length - 1) % EDGES_PER_COLUMN);
-                this.SinkNodes[i][0] = new Array(2);
-                this.SinkNodes[i][0][0] = "Edge";
-                this.SinkNodes[i][0][1] = "Out-Degree";
-                for (j = 1; j < this.SinkNodes[i].length; ++j) {
-                    this.SinkNodes[i][j] = new Array(2);
-                    this.SinkNodes[i][j][0] = allLeafs[j - 1];
-                    this.SinkNodes[i][j][1] = 0;
+                    cThis.SinkNodes[i] = new Array(2 + (allLeafs.length - 1) % EDGES_PER_COLUMN);
+                cThis.SinkNodes[i][0] = new Array(2);
+                cThis.SinkNodes[i][0][0] = "Edge";
+                cThis.SinkNodes[i][0][1] = "Out-Degree";
+                for (j = 1; j < cThis.SinkNodes[i].length; ++j) {
+                    cThis.SinkNodes[i][j] = new Array(2);
+                    cThis.SinkNodes[i][j][0] = allLeafs[j - 1];
+                    cThis.SinkNodes[i][j][1] = 0;
                 }
             }
         }
-        return this.SinkNodes;
+        return cThis.SinkNodes;
     };
 
     this.FundamentalCycles = null;
     this.getFundamentalCycles = function () {
-        if (!this.FundamentalCycles) {
-            var getCycles = FundamentalCycleList(this), i, maxWidth = 0;
+        if (!cThis.FundamentalCycles) {
+            var getCycles = FundamentalCycleList(cThis), i, maxWidth = 0;
             for (i = 0; i < getCycles.length; ++i)
                 maxWidth = Math.max(maxWidth, getCycles[i].length);
-            this.FundamentalCycles = new Array(1 + getCycles.length);
-            this.FundamentalCycles[0] = new Array(1 + maxWidth);
+            cThis.FundamentalCycles = new Array(1 + getCycles.length);
+            cThis.FundamentalCycles[0] = new Array(1 + maxWidth);
             for (i = 0; i <= maxWidth; ++i)
-                this.FundamentalCycles[0][i] = "-";
+                cThis.FundamentalCycles[0][i] = "-";
             for (i = 1; i <= getCycles.length; ++i) {
-                this.FundamentalCycles[i] = new Array(1 + maxWidth);
-                this.FundamentalCycles[i][0] = i;
+                cThis.FundamentalCycles[i] = new Array(1 + maxWidth);
+                cThis.FundamentalCycles[i][0] = i;
                 for (var j = 0; j < getCycles[i - 1].length; ++j)
-                    this.FundamentalCycles[i][j + 1] = getCycles[i - 1][j] + 1;
+                    cThis.FundamentalCycles[i][j + 1] = getCycles[i - 1][j] + 1;
                 for (j = getCycles[i - 1].length + 1; j <= maxWidth; ++j)
-                    this.FundamentalCycles[i][j] = "-";
+                    cThis.FundamentalCycles[i][j] = "-";
             }
         }
-        return this.FundamentalCycles;
+        return cThis.FundamentalCycles;
     };
 
     this.AdditionalInfo = null;
     this.getAdditionalInfo = function () {
-        if (!this.AdditionalInfo) {
-            if (!this.NODES_COUNT) {
-                this.AdditionalInfo = [[]];
-                return this.Additional;
+        if (!cThis.AdditionalInfo) {
+            if (!cThis.NODES_COUNT) {
+                cThis.AdditionalInfo = [[]];
+                return cThis.Additional;
             }
             //weighted
             //strong con
@@ -470,51 +472,44 @@ function Graph(NODES_COUNT) {
             //dvudol
             //k-dol
             //chordal
-            this.AdditionalInfo = new Array(7);
+            cThis.AdditionalInfo = new Array(7);
             var i;
             for (i = 0; i < 7; ++i)
-                this.AdditionalInfo[i] = new Array(2);
-            this.AdditionalInfo[0][0] = "-";
+                cThis.AdditionalInfo[i] = new Array(2);
+            cThis.AdditionalInfo[0][0] = "-";
 
-            this.AdditionalInfo[0][1] = "State";
-            this.AdditionalInfo[1][0] = "Weighted";
-            this.AdditionalInfo[2][0] = "Strongly connected";
-            this.AdditionalInfo[3][0] = "Weakly connected";
-            this.AdditionalInfo[4][0] = "Tree-like";
-            this.AdditionalInfo[5][0] = "Full";
-            this.AdditionalInfo[6][0] = "Regular";
-            //this.AdditionalInfo[7][0] = "Bipartite" ;
-            //this.AdditionalInfo[8][0] = "Chordal" ;
+            cThis.AdditionalInfo[0][1] = "State";
+            cThis.AdditionalInfo[1][0] = "Weighted";
+            cThis.AdditionalInfo[2][0] = "Strongly connected";
+            cThis.AdditionalInfo[3][0] = "Weakly connected";
+            cThis.AdditionalInfo[4][0] = "Tree-like";
+            cThis.AdditionalInfo[5][0] = "Full";
+            cThis.AdditionalInfo[6][0] = "Regular";
+            //cThis.AdditionalInfo[7][0] = "Bipartite" ;
+            //cThis.AdditionalInfo[8][0] = "Chordal" ;
 
-            this.AdditionalInfo[1][1] = ( this.WEIGHTED ? "+" : "-" );
+            cThis.AdditionalInfo[1][1] = ( cThis.WEIGHTED ? "+" : "-" );
 
-            this.AdditionalInfo[2][1] = ( this.FundamentalCycles.length == 2 ? "+" : "-" );
+            cThis.AdditionalInfo[2][1] = ( cThis.FundamentalCycles.length == 2 ? "+" : "-" );
 
-            this.AdditionalInfo[3][1] = ( checkWeakConnectivity(this) ? "+" : "-" );
+            cThis.AdditionalInfo[3][1] = ( checkWeakConnectivity(cThis) ? "+" : "-" );
 
-            this.AdditionalInfo[4][1] = ( this.FundamentalCycles.length == 1 + this.NODES_COUNT ? "+" : "-" );
+            cThis.AdditionalInfo[4][1] = ( cThis.FundamentalCycles.length == 1 + cThis.NODES_COUNT ? "+" : "-" );
 
-            this.AdditionalInfo[5][1] = ( checkFullness(this) ? "+" : "-" );
+            cThis.AdditionalInfo[5][1] = ( checkFullness(cThis) ? "+" : "-" );
 
-            this.AdditionalInfo[6][1] = ( checkRegularity(this) ? "+" : "-" );
+            cThis.AdditionalInfo[6][1] = ( checkRegularity(cThis) ? "+" : "-" );
 
-            //this.AdditionalInfo[7][1] = "+" ;
+            //cThis.AdditionalInfo[7][1] = "+" ;
 
-            //this.AdditionalInfo[8][1] = "+" ;
+            //cThis.AdditionalInfo[8][1] = "+" ;
         }
-        return this.AdditionalInfo;
+        return cThis.AdditionalInfo;
     } ;
 
     this.updateInfo = function() {
-        updateInputInfo();
-        updateDistanceMatrix();
-        updateAdjacencyMatrix();
-        updateIncidenceMatrix();
-        updateVerticesDegree();
-        updateSourceNodesInfo();
-        updateSinkNodesInfo();
-        updateCyclesInfo();
-        updateAdditionalInfo();
+        updateAllInfo() ;
+        $("#input-info").click();
     } ;
 }
 
@@ -757,40 +752,64 @@ var divLinks = [
         document.body.getElementsByClassName("additional-content")[0]
     ];
 
-(function() {
+
+function removeDivTables(divIndex) {
+    while (divContentLinks[divIndex].getElementsByTagName("table")[0] != undefined)
+        divContentLinks[divIndex].removeChild(divLinks[divIndex].getElementsByTagName("table")[0]);
+}
+
+function divsFunctionList(divIndex) {
+    switch (divIndex) {
+        case 0:
+            return canvasGraph.getFormattedEdgesList;
+        case 1:
+            return canvasGraph.getDistanceMatrix;
+        case 2:
+            return canvasGraph.getAdjacencyMatrix;
+        case 3:
+            return canvasGraph.getIncidenceMatrix;
+        case 4:
+            return canvasGraph.getFormattedVerticesDegree;
+        case 5:
+            return canvasGraph.getSourceNodes;
+        case 6:
+            return canvasGraph.getSinkNodes;
+        case 7:
+            return canvasGraph.getFundamentalCycles;
+        case 8:
+            return canvasGraph.getAdditionalInfo;
+    }
+}
+
+var multipleTables = [
+        1, 0, 0, 0, 1, 1, 1, 0, 0
+    ],
+    needTableNumeration = [
+        false, true, true, true, false, false, false, false, false
+    ],
+    columnWidths = [
+        [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [130,50]
+    ] ;
+
+function updateAllInfo() {
     for (var i = 0; i < divsCount; ++i) {
         document.body.getElementsByTagName("li")[i].onclick = (function () {
             var remI = i;
             return function () {
-                for (var j = 0; j < divsCount; ++j)
+                var j ;
+                for (j = 0; j < divsCount; ++j)
                     divLinks[j].style.zIndex = 0;
                 divLinks[remI].style.zIndex = 10;
-                getDivFunction(remI);
+                removeDivTables(remI) ;
+                if( multipleTables[remI] )
+                    for (j = 0; j < divsFunctionList(remI)().length; ++j)
+                        divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)()[j],
+                            needTableNumeration[remI], columnWidths[remI]));
+                else
+                    divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)(),
+                        needTableNumeration[remI], columnWidths[remI]));
             }
         })() ;
-    }
-})() ;
-
-function getDivFunction(divIndex) {
-    switch(divIndex) {
-        case 0:
-            return updateInputInfo ;
-        case 1:
-            return updateDistanceMatrix ;
-        case 2:
-            return updateAdjacencyMatrix ;
-        case 3:
-            return updateIncidenceMatrix ;
-        case 4:
-            return updateVerticesDegree ;
-        case 5:
-            return updateSourceNodesInfo ;
-        case 6:
-            return updateSinkNodesInfo ;
-        case 7:
-            return updateCyclesInfo ;
-        case 8:
-            return updateAdditionalInfo ;
     }
 }
 
@@ -798,7 +817,7 @@ document.body.getElementsByTagName("li")[divsCount].onclick = function () {
     canvasGraph.prepareToDisplay();
 };
 
-function createTable(matrix, addIndexes) {
+function createTable(matrix, addIndexes, tdWidth) {
     var
         newTable = document.createElement("table"),
         matrixHeight = matrix.length,
@@ -812,6 +831,8 @@ function createTable(matrix, addIndexes) {
         for (j = 0; j < matrix[0].length; ++j) {
             newTd = document.createElement("td");
             newTd.appendChild(document.createTextNode("" + (j + 1)));
+            if(tdWidth && tdWidth[j])
+                newTd.style.width = tdWidth[j] + "px" ;
             newTr.appendChild(newTd);
         }
         newTable.appendChild(newTr);
@@ -822,99 +843,22 @@ function createTable(matrix, addIndexes) {
         if (addIndexes) {
             newTd = document.createElement("td");
             newTd.appendChild(document.createTextNode("" + (i + 1)));
+            if(tdWidth && tdWidth[j])
+                newTd.style.width = tdWidth[j] + "px" ;
+            console.log(newTd.style.width) ;
             newTr.appendChild(newTd);
         }
         for (j = 0; j < matrix[i].length; ++j) {
             newTd = document.createElement("td");
             newTd.appendChild(document.createTextNode("" + matrix[i][j]));
+            if(tdWidth && tdWidth[j])
+                newTd.style.width = tdWidth[j] + "px" ;
             newTr.appendChild(newTd);
         }
         newTable.appendChild(newTr);
     }
 
     return newTable;
-}
-
-function removeDivTables(divIndex) {
-    while (divContentLinks[divIndex].getElementsByTagName("table")[divIndex] != undefined)
-        divContentLinks[divIndex].removeChild(divLinks[divIndex].getElementsByTagName("table")[divIndex]);
-}
-
-function updateInputInfo() {
-    removeDivTables(0) ;
-    var i;
-    for (i = 0; i < canvasGraph.getFormattedEdgesList().length; ++i)
-        divContentLinks[0].appendChild(createTable(canvasGraph.getFormattedEdgesList()[i], false, 40));
-    var inputRows = divContentLinks[0].getElementsByTagName("tr");
-    for (i = 0; i < inputRows.length; ++i) {
-        inputRows[i].getElementsByTagName("td")[0].style.width = "55px";
-        inputRows[i].getElementsByTagName("td")[1].style.width = "40px";
-        inputRows[i].getElementsByTagName("td")[2].style.width = "35px";
-        inputRows[i].getElementsByTagName("td")[3].style.width = "50px";
-    }
-}
-
-function updateDistanceMatrix() {
-    removeDivTables(1) ;
-    divContentLinks[1].appendChild(createTable(canvasGraph.getDistanceMatrix(), true));
-}
-
-function updateAdjacencyMatrix() {
-    removeDivTables(2) ;
-    divContentLinks[2].appendChild(createTable(canvasGraph.getAdjacencyMatrix(), true));
-}
-
-function updateIncidenceMatrix() {
-    removeDivTables(3) ;
-    divContentLinks[3].appendChild(createTable(canvasGraph.getIncidenceMatrix(), true));
-}
-
-function updateVerticesDegree() {
-    removeDivTables(4) ;
-    var i;
-    for (i = 0; i < canvasGraph.getFormattedVerticesDegree().length; ++i)
-        divContentLinks[4].appendChild(createTable(canvasGraph.getFormattedVerticesDegree()[i], false, 40));
-    var inputRows = divContentLinks[4].getElementsByTagName("tr");
-    for (i = 0; i < inputRows.length; ++i)
-        inputRows[i].getElementsByTagName("td")[0].style.width =
-            inputRows[i].getElementsByTagName("td")[1].style.width =
-                inputRows[i].getElementsByTagName("td")[2].style.width = "55px";
-}
-
-function updateSourceNodesInfo() {
-    removeDivTables(5) ;
-    var i;
-    for (i = 0; i < canvasGraph.getSourceNodes().length; ++i)
-        divContentLinks[5].appendChild(createTable(canvasGraph.getSourceNodes()[i], false));
-    var inputRows = divContentLinks[5].getElementsByTagName("tr");
-    for (i = 0; i < inputRows.length; ++i) {
-        inputRows[i].getElementsByTagName("td")[0].style.width = "50px";
-        inputRows[i].getElementsByTagName("td")[1].style.width = "65px";
-    }
-}
-
-function updateSinkNodesInfo() {
-    removeDivTables(6) ;
-    var i;
-    for (i = 0; i < canvasGraph.getSourceNodes().length; ++i)
-        divContentLinks[6].appendChild(createTable(canvasGraph.getSinkNodes()[i], false));
-    var inputRows = divContentLinks[6].getElementsByTagName("tr");
-    for (i = 0; i < inputRows.length; ++i) {
-        inputRows[i].getElementsByTagName("td")[0].style.width = "50px";
-        inputRows[i].getElementsByTagName("td")[1].style.width = "70px";
-    }
-}
-
-function updateCyclesInfo() {
-    removeDivTables(7) ;
-    divContentLinks[7].appendChild(createTable(canvasGraph.getFundamentalCycles(), false));
-}
-
-function updateAdditionalInfo() {
-    removeDivTables(8) ;
-    divContentLinks[8].appendChild(createTable(canvasGraph.getAdditionalInfo(), false));
-    divContentLinks[8].getElementsByTagName("tr")[0].getElementsByTagName("td")[0].style.width = "130px";
-    divContentLinks[8].getElementsByTagName("tr")[0].getElementsByTagName("td")[1].style.width = "50px";
 }
 
 (function() {
