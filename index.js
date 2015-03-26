@@ -729,6 +729,8 @@ function resetTdHover() {
         }
 }
 
+var divsCount = 9 ;
+
 var divLinks = [
         document.body.getElementsByClassName("input-info")[0],
         document.body.getElementsByClassName("distance-matrix")[0],
@@ -752,75 +754,42 @@ var divLinks = [
         document.body.getElementsByClassName("additional-content")[0]
     ];
 
-function unsetZIndex() {
-    for (var i = 0; i < divLinks.length; ++i)
-        divLinks[i].style.zIndex = 0;
+(function() {
+    for (var i = 0; i < divsCount; ++i) {
+        document.body.getElementsByTagName("li")[i].onclick = (function () {
+            var remI = i;
+            return function () {
+                for (var j = 0; j < divsCount; ++j)
+                    divLinks[j].style.zIndex = 0;
+                divLinks[remI].style.zIndex = 10;
+                getDivFunction(remI);
+            }
+        })() ;
+    }
+})() ;
+
+function getDivFunction(divIndex) {
+    if( divIndex == 0 )
+        return updateInputInfo ;
+    if( divIndex == 1 )
+        return updateDistanceMatrix ;
+    if( divIndex == 2 )
+        return updateAdjacencyMatrix ;
+    if( divIndex == 3 )
+        return updateIncidenceMatrix ;
+    if( divIndex == 4 )
+        return updateVerticesDegree ;
+    if( divIndex == 5 )
+        return updateSourceNodesInfo ;
+    if( divIndex == 6 )
+        return updateSinkNodesInfo ;
+    if( divIndex == 7 )
+        return updateCyclesInfo ;
+    if( divIndex == 8 )
+        return updateAdditionalInfo ;
 }
 
-document.body.getElementsByTagName("li")[0].onclick = function () {
-    unsetZIndex();
-    divLinks[0].style.zIndex = 10;
-
-    updateInputInfo();
-}
-
-document.body.getElementsByTagName("li")[1].onclick = function () {
-    unsetZIndex();
-    divLinks[1].style.zIndex = 10;
-
-    updateDistanceMatrix();
-};
-
-document.body.getElementsByTagName("li")[2].onclick = function () {
-    unsetZIndex();
-    divLinks[2].style.zIndex = 10;
-
-    updateAdjacencyMatrix();
-};
-
-document.body.getElementsByTagName("li")[3].onclick = function () {
-    unsetZIndex();
-    divLinks[3].style.zIndex = 10;
-
-    updateIncidenceMatrix();
-};
-
-document.body.getElementsByTagName("li")[4].onclick = function () {
-    unsetZIndex();
-    divLinks[4].style.zIndex = 10;
-
-    updateVerticesDegree();
-};
-
-document.body.getElementsByTagName("li")[5].onclick = function () {
-    unsetZIndex();
-    divLinks[5].style.zIndex = 10;
-
-    updateSourceNodesInfo();
-};
-
-document.body.getElementsByTagName("li")[6].onclick = function () {
-    unsetZIndex();
-    divLinks[6].style.zIndex = 10;
-
-    updateSinkNodesInfo();
-};
-
-document.body.getElementsByTagName("li")[7].onclick = function () {
-    unsetZIndex();
-    divLinks[7].style.zIndex = 10;
-
-    updateCyclesInfo();
-};
-
-document.body.getElementsByTagName("li")[8].onclick = function () {
-    unsetZIndex();
-    divLinks[8].style.zIndex = 10;
-
-    updateAdditionalInfo();
-};
-
-document.body.getElementsByTagName("li")[9].onclick = function () {
+document.body.getElementsByTagName("li")[divsCount].onclick = function () {
     canvasGraph.prepareToDisplay();
 };
 
