@@ -13,6 +13,22 @@
                         <canvas width="550px" height="550px" id="mainField"></canvas>
                     </div>
                     <div class="graph-info">
+                        <div id="overlay">
+                            <div id="overlay-content">
+                                <div class="traversal-choice">
+                                    <input name="traversal" type="radio" id="dfs" checked> <label for="dfs">DFS</label>
+                                    <input name="traversal" type="radio" id="bfs"> <label for="bfs">BFS</label>
+                                </div>
+                                <div class="traversal-start">
+                                    <select name="node-start">
+                                        <option selected>Choose vertex..</option>
+                                    </select>
+                                </div>
+                                <div class="traversal-choose">
+                                    <p>Choose</p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="distance-matrix">
                             <div class="to_scroll">
                                 <div class="distance-matrix-content">
@@ -62,6 +78,13 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="traversal-algo">
+                            <div class="to_scroll">
+                                <div class="traversal-algo-content">
+                                    <p>Graph information</p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="additional">
                             <div class="to_scroll">
                                 <div class="additional-content">
@@ -91,7 +114,7 @@
                                 <li>Source vertices</li>
                                 <li>Sink vertices</li>
                                 <li>Fundamental cycles</li>
-                                <!--<li>Traversal algorithms</li>-->
+                                <li>Traversal algorithms</li>
                                 <li>Additional info</li>
                                 <li>Reset graph</li>
                             </ul>

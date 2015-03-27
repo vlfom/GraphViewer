@@ -158,6 +158,7 @@ body {
     background: rgba(240, 240, 240, 0.9);
 }
 
+#overlay,
 .input-info,
 .distance-matrix,
 .adjacency-matrix,
@@ -179,6 +180,12 @@ body {
     display: inline-table;
 }
 
+.graph-info #overlay {
+    background: rgba(0,0,0,0.8) ;
+    z-index: 30;
+    visibility: hidden ;
+}
+
 .input-info p,
 .distance-matrix p,
 .adjacency-matrix p,
@@ -194,6 +201,67 @@ body {
     color: rgb(50, 50, 50);
 }
 
+input[type="radio"] {
+    margin-right: 5px ;
+}
+
+label[for="dfs"] {
+    margin-right: 10px ;
+}
+
+label[for="bfs"],
+label[for="dfs"] {
+    font-family: Aller, sans-serif ;
+    font-size: 18px ;
+    color: white ;
+}
+
+.traversal-choice {
+    margin-bottom: 8px ;
+}
+
+.traversal-start {
+    margin-bottom: 10px ;
+}
+
+.traversal-choose {
+    padding: 3px ;
+    background: #777 ;
+    width: 100px ;
+    display: inline-block ;
+    border-radius: 2px ;
+}
+
+.traversal-choose:hover {
+    background: #555 ;
+}
+
+.traversal-choose p {
+    font-family: Aller, sans-serif ;
+    font-size: 14px ;
+    color: white ;
+}
+
+.graph-info select {
+    border-radius: 2px ;
+}
+
+.graph-info select,
+.graph-info select option {
+    font-family: Aller, sans-serif ;
+    font-size: 14px ;
+    color: black ;
+}
+
+.traversal-choice,
+.traversal-start {
+    display: block ;
+}
+
+select[name="node-start"] {
+    width: 150px ;
+}
+
 .to_scroll {
     position: relative;
     height: 550px;
@@ -204,6 +272,7 @@ body {
     text-align: center;
 }
 
+#overlay-content,
 .input-info-content,
 .distance-matrix-content,
 .adjacency-matrix-content,

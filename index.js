@@ -457,6 +457,9 @@ function Graph(NODES_COUNT) {
         return cThis.FundamentalCycles;
     };
 
+    this.getTraversalAlgorithmsInfo = function (algoType, startVertex) {
+    } ;
+
     this.AdditionalInfo = null;
     this.getAdditionalInfo = function () {
         if (!cThis.AdditionalInfo) {
@@ -489,19 +492,12 @@ function Graph(NODES_COUNT) {
             //cThis.AdditionalInfo[8][0] = "Chordal" ;
 
             cThis.AdditionalInfo[1][1] = ( cThis.WEIGHTED ? "+" : "-" );
-
             cThis.AdditionalInfo[2][1] = ( cThis.FundamentalCycles.length == 2 ? "+" : "-" );
-
             cThis.AdditionalInfo[3][1] = ( checkWeakConnectivity(cThis) ? "+" : "-" );
-
             cThis.AdditionalInfo[4][1] = ( cThis.FundamentalCycles.length == 1 + cThis.NODES_COUNT ? "+" : "-" );
-
             cThis.AdditionalInfo[5][1] = ( checkFullness(cThis) ? "+" : "-" );
-
             cThis.AdditionalInfo[6][1] = ( checkRegularity(cThis) ? "+" : "-" );
-
             //cThis.AdditionalInfo[7][1] = "+" ;
-
             //cThis.AdditionalInfo[8][1] = "+" ;
         }
         return cThis.AdditionalInfo;
@@ -727,7 +723,7 @@ function resetTdHover() {
         }
 }
 
-var divsCount = 9 ;
+var divsCount = 10 ;
 
 var divLinks = [
         document.body.getElementsByClassName("input-info")[0],
@@ -738,6 +734,7 @@ var divLinks = [
         document.body.getElementsByClassName("source-nodes")[0],
         document.body.getElementsByClassName("sink-nodes")[0],
         document.body.getElementsByClassName("cycles")[0],
+        document.body.getElementsByClassName("traversal-algo")[0],
         document.body.getElementsByClassName("additional")[0]
     ],
     divContentLinks = [
@@ -749,6 +746,7 @@ var divLinks = [
         document.body.getElementsByClassName("source-nodes-content")[0],
         document.body.getElementsByClassName("sink-nodes-content")[0],
         document.body.getElementsByClassName("cycles-content")[0],
+        document.body.getElementsByClassName("traversal-algo-content")[0],
         document.body.getElementsByClassName("additional-content")[0]
     ];
 
@@ -777,18 +775,20 @@ function divsFunctionList(divIndex) {
         case 7:
             return canvasGraph.getFundamentalCycles;
         case 8:
+            return function() { return [] ; } ;
+        case 9:
             return canvasGraph.getAdditionalInfo;
     }
 }
 
 var multipleTables = [
-        1, 0, 0, 0, 1, 1, 1, 0, 0
+        1, 0, 0, 0, 1, 1, 1, 0, 0, 0
     ],
     needTableNumeration = [
-        false, true, true, true, false, false, false, false, false
+        false, true, true, true, false, false, false, false, false, false
     ],
     columnWidths = [
-        [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [130,50]
+        [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [], [130,50]
     ] ;
 
 function updateAllInfo() {
@@ -797,6 +797,15 @@ function updateAllInfo() {
             var remI = i;
             return function () {
                 var j ;
+                if( remI == 8 ) {
+                    $("#overlay").css("visibility", "visible");
+                    for (j = 0; j < canvasGraph.NODES_COUNT; ++j) {
+                        var newOption = document.createElement("option") ;
+                        newOption.appendChild(document.createTextNode("Vertex " + (j + 1)));
+                        $("select[name=\"node-start\"]").append(newOption);
+                        console.log($("select[name=\"node-start\"]")) ;
+                    }
+                }
                 for (j = 0; j < divsCount; ++j)
                     divLinks[j].style.zIndex = 0;
                 divLinks[remI].style.zIndex = 10;
@@ -812,6 +821,10 @@ function updateAllInfo() {
         })() ;
     }
 }
+
+$(".traversal-choose").onclick = function() {
+
+} ;
 
 document.body.getElementsByTagName("li")[divsCount].onclick = function () {
     canvasGraph.prepareToDisplay();
@@ -845,7 +858,6 @@ function createTable(matrix, addIndexes, tdWidth) {
             newTd.appendChild(document.createTextNode("" + (i + 1)));
             if(tdWidth && tdWidth[j])
                 newTd.style.width = tdWidth[j] + "px" ;
-            console.log(newTd.style.width) ;
             newTr.appendChild(newTd);
         }
         for (j = 0; j < matrix[i].length; ++j) {
