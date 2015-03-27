@@ -292,10 +292,7 @@ function Graph(NODES_COUNT) {
                     cThis.FormattedEdgesList[i] = new Array(2 + (cThis.EDGES_COUNT - 1) % EDGES_PER_COLUMN);
                 for (j = 0; j < cThis.FormattedEdgesList[i].length; ++j)
                     cThis.FormattedEdgesList[i][j] = new Array(4);
-                cThis.FormattedEdgesList[i][0][0] = "";
-                cThis.FormattedEdgesList[i][0][1] = "From";
-                cThis.FormattedEdgesList[i][0][2] = "To";
-                cThis.FormattedEdgesList[i][0][3] = "Weight";
+                cThis.FormattedEdgesList[i][0] = [ "", "From", "To", "Weight" ] ;
                 for (j = 1; j < cThis.FormattedEdgesList[i].length; ++j) {
                     cThis.FormattedEdgesList[i][j][0] = j + i * EDGES_PER_COLUMN + " edge";
                     cThis.FormattedEdgesList[i][j][1] = cThis.EdgeList[j - 1 + i * EDGES_PER_COLUMN].from + 1;
@@ -362,18 +359,10 @@ function Graph(NODES_COUNT) {
                     cThis.FormattedVerticesDegree[i] = new Array(16);
                 else
                     cThis.FormattedVerticesDegree[i] = new Array(2 + (cThis.NODES_COUNT - 1) % 15);
-                for (j = 0; j < cThis.FormattedVerticesDegree[i].length; ++j) {
-                    cThis.FormattedVerticesDegree[i][j] = new Array(3);
-                    cThis.FormattedVerticesDegree[i][j][1] = 0;
-                }
-                cThis.FormattedVerticesDegree[i][0][0] = "";
-                cThis.FormattedVerticesDegree[i][0][1] = "In-deg";
-                cThis.FormattedVerticesDegree[i][0][2] = "Out-deg";
-                for (j = 1; j < cThis.FormattedVerticesDegree[i].length; ++j) {
-                    cThis.FormattedVerticesDegree[i][j][0] = j + i * 15 + " edge";
-                    cThis.FormattedVerticesDegree[i][j][1] = cThis.NodeList[j - 1 + i * 15].inDegree;
-                    cThis.FormattedVerticesDegree[i][j][2] = cThis.NodeList[j - 1 + i * 15].outDegree;
-                }
+                cThis.FormattedVerticesDegree[i][0] = [ "" ,"In-deg" ,"Out-deg" ] ;
+                for (j = 1; j < cThis.FormattedVerticesDegree[i].length; ++j)
+                    cThis.FormattedVerticesDegree[i][j] = [ j + i * 15 + " edge",
+                        cThis.NodeList[j - 1 + i * 15].inDegree, cThis.NodeList[j - 1 + i * 15].outDegree ] ;
             }
         }
         return cThis.FormattedVerticesDegree;
@@ -394,14 +383,9 @@ function Graph(NODES_COUNT) {
                     cThis.SourceNodes[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
                     cThis.SourceNodes[i] = new Array(2 + (allIsolated.length - 1) % EDGES_PER_COLUMN);
-                cThis.SourceNodes[i][0] = new Array(2);
-                cThis.SourceNodes[i][0][0] = "Edge";
-                cThis.SourceNodes[i][0][1] = "In-Degree";
-                for (j = 1; j < cThis.SourceNodes[i].length; ++j) {
-                    cThis.SourceNodes[i][j] = new Array(2);
-                    cThis.SourceNodes[i][j][0] = allIsolated[j - 1];
-                    cThis.SourceNodes[i][j][1] = 0;
-                }
+                cThis.SourceNodes[i][0] = [ "Edge", "In-Degree" ] ;
+                for (j = 1; j < cThis.SourceNodes[i].length; ++j)
+                    cThis.SourceNodes[i][j] = [ allIsolated[j - 1], 0] ;
             }
         }
         return cThis.SourceNodes;
@@ -422,14 +406,9 @@ function Graph(NODES_COUNT) {
                     cThis.SinkNodes[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
                     cThis.SinkNodes[i] = new Array(2 + (allLeafs.length - 1) % EDGES_PER_COLUMN);
-                cThis.SinkNodes[i][0] = new Array(2);
-                cThis.SinkNodes[i][0][0] = "Edge";
-                cThis.SinkNodes[i][0][1] = "Out-Degree";
-                for (j = 1; j < cThis.SinkNodes[i].length; ++j) {
-                    cThis.SinkNodes[i][j] = new Array(2);
-                    cThis.SinkNodes[i][j][0] = allLeafs[j - 1];
-                    cThis.SinkNodes[i][j][1] = 0;
-                }
+                cThis.SinkNodes[i][0] = ["Edge", "Out-Degree"] ;
+                for (j = 1; j < cThis.SinkNodes[i].length; ++j)
+                    cThis.SinkNodes[i][j] = [allLeafs[j - 1], 0] ;
             }
         }
         return cThis.SinkNodes;
@@ -457,7 +436,31 @@ function Graph(NODES_COUNT) {
         return cThis.FundamentalCycles;
     };
 
+    this.TraversalAlgorithmsInfo = null ;
     this.getTraversalAlgorithmsInfo = function (algoType, startVertex) {
+        if( algotype == "DFS" ) {
+            cThis.TraversalAlgorithmsInfo = new Array(1) ;
+            cThis.TraversalAlgorithmsInfo[0] = ["Vertex", "DFS Number", "Stack content"] ;
+
+            var dfsNumber = 0,
+                dfsStack = [startVertex],
+                dfsVisited = new Array(cThis.NODES_COUNT) ;
+            while( dfsStack.length ) {
+                var curVertex = dfsStack[dfsStack.length-1],
+                    foundSomething = false ;
+                for(var i = 0 ; i < cThis.NodeList[curVertex].edges_list.length ; ++i) {
+                    var nextVertex = cThis.NodeList[curVertex].edges_list[i] ;
+                    if( !dfsVisited[nextVertex] ) {
+                        dfsVisited[nextVertex] = true ;
+                        dfsStack.push(nextVertex) ;
+                        foundSomething = true ;
+                        break ;
+                    }
+                }
+                if( !foundSomething )
+                    dfsStack.pop() ;
+            }
+        }
     } ;
 
     this.AdditionalInfo = null;
