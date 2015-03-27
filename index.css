@@ -167,6 +167,7 @@ body {
 .source-nodes,
 .sink-nodes,
 .cycles,
+.traversal-algo,
 .additional {
     height: 540px;
     width: 550px;
@@ -194,6 +195,7 @@ body {
 .source-nodes p,
 .sink-nodes p,
 .cycles p,
+.traversal-algo p,
 .additional p {
     margin-bottom: 20px;
     font-family: Aller, sans-serif;
@@ -281,6 +283,7 @@ select[name="node-start"] {
 .source-nodes-content,
 .sink-nodes-content,
 .cycles-content,
+.traversal-algo-content,
 .additional-content {
     height: 490px;
     max-height: 500px;

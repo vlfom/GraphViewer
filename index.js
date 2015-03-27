@@ -437,29 +437,71 @@ function Graph(NODES_COUNT) {
     };
 
     this.TraversalAlgorithmsInfo = null ;
-    this.getTraversalAlgorithmsInfo = function (algoType, startVertex) {
-        if( algotype == "DFS" ) {
-            cThis.TraversalAlgorithmsInfo = new Array(1) ;
-            cThis.TraversalAlgorithmsInfo[0] = ["Vertex", "DFS Number", "Stack content"] ;
-
-            var dfsNumber = 0,
+    this.getTraversalAlgorithmsInfo = function(algoType, startVertex) {
+        function formatArray(travArray) {
+            if( travArray.length == 0 )
+                return "" ;
+            var strFormat = "" + (travArray[0]+1) ;
+            for( var i = 1 ; i < travArray.length ; ++i )
+                strFormat += ", " + (travArray[i]+1) ;
+            return strFormat ;
+        }
+        var curVertex, nextVertex, i, foundSomething ;
+        if (algoType == "DFS") {
+            cThis.TraversalAlgorithmsInfo = [
+                ["-", "Vertex", "DFS Number", "Stack content"],
+                ["-", startVertex+1, 1, startVertex+1]
+            ];
+            var dfsNumber = 1,
                 dfsStack = [startVertex],
-                dfsVisited = new Array(cThis.NODES_COUNT) ;
-            while( dfsStack.length ) {
-                var curVertex = dfsStack[dfsStack.length-1],
-                    foundSomething = false ;
-                for(var i = 0 ; i < cThis.NodeList[curVertex].edges_list.length ; ++i) {
-                    var nextVertex = cThis.NodeList[curVertex].edges_list[i] ;
-                    if( !dfsVisited[nextVertex] ) {
-                        dfsVisited[nextVertex] = true ;
-                        dfsStack.push(nextVertex) ;
-                        foundSomething = true ;
-                        break ;
+                dfsVisited = new Array(cThis.NODES_COUNT);
+            dfsVisited[0] = true ;
+            while (dfsStack.length) {
+                curVertex = dfsStack[dfsStack.length - 1] ;
+                foundSomething = false;
+                for (i = 0; i < cThis.NodeList[curVertex].edges_list.length; ++i) {
+                    nextVertex = cThis.NodeList[curVertex].edges_list[i];
+                    if (!dfsVisited[nextVertex]) {
+                        dfsVisited[nextVertex] = true;
+                        dfsStack.push(nextVertex);
+                        foundSomething = true;
+                        cThis.TraversalAlgorithmsInfo.push(["-", nextVertex + 1, ++dfsNumber, formatArray(dfsStack)]);
+                        break;
                     }
                 }
-                if( !foundSomething )
-                    dfsStack.pop() ;
+                if (!foundSomething) {
+                    dfsStack.pop();
+                    if( dfsStack.length )
+                        cThis.TraversalAlgorithmsInfo.push(["-", "-", "-", formatArray(dfsStack)]);
+                }
             }
+            return cThis.TraversalAlgorithmsInfo ;
+        }
+        else if (algoType == "BFS") {
+            cThis.TraversalAlgorithmsInfo = [
+                ["-", "Vertex", "BFS Number", "Stack content"],
+                ["-", startVertex+1, 1, startVertex+1]
+            ];
+            var bfsNumber = 1,
+                bfsStack = [startVertex],
+                bfsVisited = new Array(cThis.NODES_COUNT);
+            bfsVisited[0] = true ;
+            while (bfsStack.length) {
+                curVertex = bfsStack[bfsStack.length - 1];
+                foundSomething = false;
+                for (i = 0; i < cThis.NodeList[curVertex].edges_list.length; ++i) {
+                    nextVertex = cThis.NodeList[curVertex].edges_list[i];
+                    if (!bfsVisited[nextVertex]) {
+                        bfsVisited[nextVertex] = true;
+                        bfsStack.push(nextVertex);
+                        cThis.TraversalAlgorithmsInfo.push(["-", nextVertex + 1, ++bfsNumber, formatArray(bfsStack)]);
+                    }
+                }
+                bfsStack.shift() ;
+                if( bfsStack.length )
+                    cThis.TraversalAlgorithmsInfo.push(["-", "-", "-", formatArray(bfsStack)]);
+            }
+            return cThis.TraversalAlgorithmsInfo ;
         }
     } ;
 
@@ -791,43 +833,68 @@ var multipleTables = [
         false, true, true, true, false, false, false, false, false, false
     ],
     columnWidths = [
-        [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [], [130,50]
+        [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [0, 50,100,100], [130,50]
     ] ;
 
 function updateAllInfo() {
+    var newOption = document.createElement("option");
+    newOption.appendChild(document.createTextNode("Pick start vertex.."));
+    $("select[name=\"node-start\"]").empty().append(newOption);
+    for (j = 0; j < canvasGraph.NODES_COUNT; ++j) {
+        newOption = document.createElement("option");
+        newOption.appendChild(document.createTextNode("Vertex " + (j + 1)));
+        $("select[name=\"node-start\"]").append(newOption);
+    }
     for (var i = 0; i < divsCount; ++i) {
         document.body.getElementsByTagName("li")[i].onclick = (function () {
             var remI = i;
             return function () {
-                var j ;
-                if( remI == 8 ) {
+                var j;
+                if (remI == 8)
                     $("#overlay").css("visibility", "visible");
-                    for (j = 0; j < canvasGraph.NODES_COUNT; ++j) {
-                        var newOption = document.createElement("option") ;
-                        newOption.appendChild(document.createTextNode("Vertex " + (j + 1)));
-                        $("select[name=\"node-start\"]").append(newOption);
-                        console.log($("select[name=\"node-start\"]")) ;
-                    }
-                }
-                for (j = 0; j < divsCount; ++j)
-                    divLinks[j].style.zIndex = 0;
-                divLinks[remI].style.zIndex = 10;
-                removeDivTables(remI) ;
-                if( multipleTables[remI] )
-                    for (j = 0; j < divsFunctionList(remI)().length; ++j)
-                        divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)()[j],
+                else {
+                    for (j = 0; j < divsCount; ++j)
+                        divLinks[j].style.zIndex = 0;
+                    divLinks[remI].style.zIndex = 10;
+                    removeDivTables(remI);
+                    if (multipleTables[remI])
+                        for (j = 0; j < divsFunctionList(remI)().length; ++j)
+                            divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)()[j],
+                                needTableNumeration[remI], columnWidths[remI]));
+                    else
+                        divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)(),
                             needTableNumeration[remI], columnWidths[remI]));
-                else
-                    divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)(),
-                        needTableNumeration[remI], columnWidths[remI]));
+                }
             }
-        })() ;
+        })();
     }
 }
 
-$(".traversal-choose").onclick = function() {
-
-} ;
+$(".traversal-choose").on("click", function() {
+    $("#overlay").css("visibility", "hidden");
+    for (j = 0; j < divsCount; ++j)
+        divLinks[j].style.zIndex = 0;
+    divLinks[8].style.zIndex = 10;
+    removeDivTables(8);
+    var traversalType,
+        startNode = parseInt($("select[name=\"node-start\"] option:selected").text()[7]) - 1;
+    if ($('input[type=radio][id="dfs"]:checked').val())
+        traversalType = "DFS";
+    else if ($('input[type=radio][id="bfs"]:checked').val())
+        traversalType = "BFS";
+    if (isNaN(startNode))
+        $("#traversal-algo-name").text("You did not pick start vertex");
+    else {
+        $("#traversal-algo-name").text(traversalType + " traverse order");
+        divContentLinks[8].appendChild(createTable(
+            canvasGraph.getTraversalAlgorithmsInfo(
+                traversalType,
+                parseInt($("select[name=\"node-start\"] option:selected").text()[7]) - 1
+            ),
+            needTableNumeration[8], columnWidths[8]
+        ));
+    }
+}) ;
 
 document.body.getElementsByTagName("li")[divsCount].onclick = function () {
     canvasGraph.prepareToDisplay();
