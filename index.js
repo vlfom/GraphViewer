@@ -455,7 +455,7 @@ function Graph(NODES_COUNT) {
             var dfsNumber = 1,
                 dfsStack = [startVertex],
                 dfsVisited = new Array(cThis.NODES_COUNT);
-            dfsVisited[0] = true ;
+            dfsVisited[startVertex] = true ;
             while (dfsStack.length) {
                 curVertex = dfsStack[dfsStack.length - 1] ;
                 foundSomething = false;
@@ -473,6 +473,8 @@ function Graph(NODES_COUNT) {
                     dfsStack.pop();
                     if( dfsStack.length )
                         cThis.TraversalAlgorithmsInfo.push(["-", "-", "-", formatArray(dfsStack)]);
+                    else
+                        cThis.TraversalAlgorithmsInfo.push(["-", "-", "-", "empty"]);
                 }
             }
             return cThis.TraversalAlgorithmsInfo ;
@@ -485,12 +487,15 @@ function Graph(NODES_COUNT) {
             var bfsNumber = 1,
                 bfsStack = [startVertex],
                 bfsVisited = new Array(cThis.NODES_COUNT);
-            bfsVisited[0] = true ;
+            bfsVisited[startVertex] = true ;
             while (bfsStack.length) {
-                curVertex = bfsStack[bfsStack.length - 1];
+                console.log( bfsStack ) ;
+                curVertex = bfsStack[0];
                 foundSomething = false;
+                console.log( curVertex, cThis.NodeList[curVertex].edges_list ) ;
                 for (i = 0; i < cThis.NodeList[curVertex].edges_list.length; ++i) {
                     nextVertex = cThis.NodeList[curVertex].edges_list[i];
+                    console.log( curVertex, nextVertex ) ;
                     if (!bfsVisited[nextVertex]) {
                         bfsVisited[nextVertex] = true;
                         bfsStack.push(nextVertex);
@@ -500,6 +505,8 @@ function Graph(NODES_COUNT) {
                 bfsStack.shift() ;
                 if( bfsStack.length )
                     cThis.TraversalAlgorithmsInfo.push(["-", "-", "-", formatArray(bfsStack)]);
+                else
+                    cThis.TraversalAlgorithmsInfo.push(["-", "-", "-", "empty"]);
             }
             return cThis.TraversalAlgorithmsInfo ;
         }
