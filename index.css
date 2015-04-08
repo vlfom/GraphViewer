@@ -167,6 +167,7 @@ body {
 .source-nodes,
 .sink-nodes,
 .cycles,
+.topological-sort,
 .traversal-algo,
 .additional {
     height: 540px;
@@ -195,6 +196,7 @@ body {
 .source-nodes p,
 .sink-nodes p,
 .cycles p,
+.topological-sort p,
 .traversal-algo p,
 .additional p {
     margin-bottom: 20px;
@@ -283,6 +285,7 @@ select[name="node-start"] {
 .source-nodes-content,
 .sink-nodes-content,
 .cycles-content,
+.topological-sort-content,
 .traversal-algo-content,
 .additional-content {
     height: 490px;

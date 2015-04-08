@@ -74,7 +74,7 @@ function checkWeakConnectivity(myGraph) {
 }
 
 function FundamentalCycleList(myGraph) {
-    var nvis, rEdgeList, i;
+    var rEdgeList, i;
 
     rEdgeList = new Array(myGraph.NODES_COUNT);
     for (i = 0; i < myGraph.NODES_COUNT; ++i)
@@ -105,7 +105,7 @@ function FundamentalCycleList(myGraph) {
         cycle.push(vertex);
     }
 
-    vis = new Array(myGraph.NODES_COUNT);
+    var vis = new Array(myGraph.NODES_COUNT);
     order = new Array(0);
     for (i = 0; i < myGraph.NODES_COUNT; ++i)
         if (!vis[i])
@@ -120,6 +120,28 @@ function FundamentalCycleList(myGraph) {
             cycle = new Array(0);
         }
     return cycleList;
+}
+
+function TopologicalSort(myGraph) {
+    var i, order;
+
+    function dfs1(vertex) {
+        vis[vertex] = 1;
+        for (var i = 0; i < myGraph.NodeList[vertex].edges_list.length; ++i) {
+            var next = myGraph.NodeList[vertex].edges_list[i];
+            if (!vis[next])
+                dfs1(next);
+        }
+        order.push(vertex);
+    }
+
+    vis = new Array(myGraph.NODES_COUNT);
+    order = new Array(0);
+    for (i = 0; i < myGraph.NODES_COUNT; ++i)
+        if (!vis[i])
+            dfs1(i);
+
+    return order.reverse() ;
 }
 
 function Node(index) {
@@ -243,6 +265,7 @@ function Graph(NODES_COUNT) {
         cThis.SourceNodes = null;
         cThis.SinkNodes = null;
         cThis.FundamentalCycles = null;
+        cThis.TopologicalSort = null;
         cThis.AdditionalInfo = null;
     };
 
@@ -292,7 +315,7 @@ function Graph(NODES_COUNT) {
                     cThis.FormattedEdgesList[i] = new Array(2 + (cThis.EDGES_COUNT - 1) % EDGES_PER_COLUMN);
                 for (j = 0; j < cThis.FormattedEdgesList[i].length; ++j)
                     cThis.FormattedEdgesList[i][j] = new Array(4);
-                cThis.FormattedEdgesList[i][0] = [ "", "From", "To", "Weight" ] ;
+                cThis.FormattedEdgesList[i][0] = ["", "From", "To", "Weight"];
                 for (j = 1; j < cThis.FormattedEdgesList[i].length; ++j) {
                     cThis.FormattedEdgesList[i][j][0] = j + i * EDGES_PER_COLUMN + " edge";
                     cThis.FormattedEdgesList[i][j][1] = cThis.EdgeList[j - 1 + i * EDGES_PER_COLUMN].from + 1;
@@ -322,7 +345,6 @@ function Graph(NODES_COUNT) {
                     cThis.AdjacencyMatrix[i][cThis.NodeList[i].edges_list[j]] = 1;
             for (i = 0; i < cThis.NODES_COUNT; ++i)
                 cThis.AdjacencyMatrix[i][i] = 1;
-
         }
         return cThis.AdjacencyMatrix;
     };
@@ -359,10 +381,10 @@ function Graph(NODES_COUNT) {
                     cThis.FormattedVerticesDegree[i] = new Array(16);
                 else
                     cThis.FormattedVerticesDegree[i] = new Array(2 + (cThis.NODES_COUNT - 1) % 15);
-                cThis.FormattedVerticesDegree[i][0] = [ "" ,"In-deg" ,"Out-deg" ] ;
+                cThis.FormattedVerticesDegree[i][0] = ["", "In-deg", "Out-deg"];
                 for (j = 1; j < cThis.FormattedVerticesDegree[i].length; ++j)
-                    cThis.FormattedVerticesDegree[i][j] = [ j + i * 15 + " edge",
-                        cThis.NodeList[j - 1 + i * 15].inDegree, cThis.NodeList[j - 1 + i * 15].outDegree ] ;
+                    cThis.FormattedVerticesDegree[i][j] = [j + i * 15 + " edge",
+                        cThis.NodeList[j - 1 + i * 15].inDegree, cThis.NodeList[j - 1 + i * 15].outDegree];
             }
         }
         return cThis.FormattedVerticesDegree;
@@ -383,9 +405,9 @@ function Graph(NODES_COUNT) {
                     cThis.SourceNodes[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
                     cThis.SourceNodes[i] = new Array(2 + (allIsolated.length - 1) % EDGES_PER_COLUMN);
-                cThis.SourceNodes[i][0] = [ "Edge", "In-Degree" ] ;
+                cThis.SourceNodes[i][0] = ["Edge", "In-Degree"];
                 for (j = 1; j < cThis.SourceNodes[i].length; ++j)
-                    cThis.SourceNodes[i][j] = [ allIsolated[j - 1], 0] ;
+                    cThis.SourceNodes[i][j] = [allIsolated[j - 1], 0];
             }
         }
         return cThis.SourceNodes;
@@ -406,9 +428,9 @@ function Graph(NODES_COUNT) {
                     cThis.SinkNodes[i] = new Array(EDGES_PER_COLUMN + 1);
                 else
                     cThis.SinkNodes[i] = new Array(2 + (allLeafs.length - 1) % EDGES_PER_COLUMN);
-                cThis.SinkNodes[i][0] = ["Edge", "Out-Degree"] ;
+                cThis.SinkNodes[i][0] = ["Edge", "Out-Degree"];
                 for (j = 1; j < cThis.SinkNodes[i].length; ++j)
-                    cThis.SinkNodes[i][j] = [allLeafs[j - 1], 0] ;
+                    cThis.SinkNodes[i][j] = [allLeafs[j - 1], 0];
             }
         }
         return cThis.SinkNodes;
@@ -450,14 +472,14 @@ function Graph(NODES_COUNT) {
         if (algoType == "DFS") {
             cThis.TraversalAlgorithmsInfo = [
                 ["-", "Vertex", "DFS Number", "Stack content"],
-                ["-", startVertex+1, 1, startVertex+1]
+                ["-", startVertex + 1, 1, startVertex + 1]
             ];
             var dfsNumber = 1,
                 dfsStack = [startVertex],
                 dfsVisited = new Array(cThis.NODES_COUNT);
-            dfsVisited[startVertex] = true ;
+            dfsVisited[startVertex] = true;
             while (dfsStack.length) {
-                curVertex = dfsStack[dfsStack.length - 1] ;
+                curVertex = dfsStack[dfsStack.length - 1];
                 foundSomething = false;
                 for (i = 0; i < cThis.NodeList[curVertex].edges_list.length; ++i) {
                     nextVertex = cThis.NodeList[curVertex].edges_list[i];
@@ -471,46 +493,62 @@ function Graph(NODES_COUNT) {
                 }
                 if (!foundSomething) {
                     dfsStack.pop();
-                    if( dfsStack.length )
+                    if (dfsStack.length)
                         cThis.TraversalAlgorithmsInfo.push(["-", "-", "-", formatArray(dfsStack)]);
                     else
                         cThis.TraversalAlgorithmsInfo.push(["-", "-", "-", "empty"]);
                 }
             }
-            return cThis.TraversalAlgorithmsInfo ;
+            return cThis.TraversalAlgorithmsInfo;
         }
         else if (algoType == "BFS") {
             cThis.TraversalAlgorithmsInfo = [
                 ["-", "Vertex", "BFS Number", "Stack content"],
-                ["-", startVertex+1, 1, startVertex+1]
+                ["-", startVertex + 1, 1, startVertex + 1]
             ];
             var bfsNumber = 1,
                 bfsStack = [startVertex],
                 bfsVisited = new Array(cThis.NODES_COUNT);
-            bfsVisited[startVertex] = true ;
+            bfsVisited[startVertex] = true;
             while (bfsStack.length) {
-                console.log( bfsStack ) ;
+                console.log(bfsStack);
                 curVertex = bfsStack[0];
                 foundSomething = false;
-                console.log( curVertex, cThis.NodeList[curVertex].edges_list ) ;
+                console.log(curVertex, cThis.NodeList[curVertex].edges_list);
                 for (i = 0; i < cThis.NodeList[curVertex].edges_list.length; ++i) {
                     nextVertex = cThis.NodeList[curVertex].edges_list[i];
-                    console.log( curVertex, nextVertex ) ;
+                    console.log(curVertex, nextVertex);
                     if (!bfsVisited[nextVertex]) {
                         bfsVisited[nextVertex] = true;
                         bfsStack.push(nextVertex);
                         cThis.TraversalAlgorithmsInfo.push(["-", nextVertex + 1, ++bfsNumber, formatArray(bfsStack)]);
                     }
                 }
-                bfsStack.shift() ;
-                if( bfsStack.length )
+                bfsStack.shift();
+                if (bfsStack.length)
                     cThis.TraversalAlgorithmsInfo.push(["-", "-", "-", formatArray(bfsStack)]);
                 else
                     cThis.TraversalAlgorithmsInfo.push(["-", "-", "-", "empty"]);
             }
-            return cThis.TraversalAlgorithmsInfo ;
+            return cThis.TraversalAlgorithmsInfo;
         }
     } ;
+
+    this.TopologicalSort = null;
+    this.getTopologicalSort = function () {
+        if (!cThis.TopologicalSort) {
+            var getCycles = FundamentalCycleList(cThis) ;
+            if (getCycles.length == cThis.NODES_COUNT) {
+                cThis.TopologicalSort = [["Index","Vertex"]] ;
+                var getSort = TopologicalSort(cThis);
+                for (var i = 0; i < getSort.length; ++i)
+                    cThis.TopologicalSort.push([""+(i+1),getSort[i]+1]) ;
+            }
+            else
+                cThis.TopologicalSort = [["-"]] ;
+        }
+        return cThis.TopologicalSort ;
+    };
 
     this.AdditionalInfo = null;
     this.getAdditionalInfo = function () {
@@ -544,9 +582,9 @@ function Graph(NODES_COUNT) {
             //cThis.AdditionalInfo[8][0] = "Chordal" ;
 
             cThis.AdditionalInfo[1][1] = ( cThis.WEIGHTED ? "+" : "-" );
-            cThis.AdditionalInfo[2][1] = ( cThis.FundamentalCycles.length == 2 ? "+" : "-" );
+            cThis.AdditionalInfo[2][1] = ( cThis.getFundamentalCycles().length == 2 ? "+" : "-" );
             cThis.AdditionalInfo[3][1] = ( checkWeakConnectivity(cThis) ? "+" : "-" );
-            cThis.AdditionalInfo[4][1] = ( cThis.FundamentalCycles.length == 1 + cThis.NODES_COUNT ? "+" : "-" );
+            cThis.AdditionalInfo[4][1] = ( cThis.getFundamentalCycles().length == 1 + cThis.NODES_COUNT ? "+" : "-" );
             cThis.AdditionalInfo[5][1] = ( checkFullness(cThis) ? "+" : "-" );
             cThis.AdditionalInfo[6][1] = ( checkRegularity(cThis) ? "+" : "-" );
             //cThis.AdditionalInfo[7][1] = "+" ;
@@ -557,6 +595,7 @@ function Graph(NODES_COUNT) {
 
     this.updateInfo = function() {
         updateAllInfo() ;
+        updateAllFunctions() ;
         $("#input-info").click();
     } ;
 }
@@ -775,7 +814,7 @@ function resetTdHover() {
         }
 }
 
-var divsCount = 10 ;
+var divsCount = 11 ;
 
 var divLinks = [
         document.body.getElementsByClassName("input-info")[0],
@@ -787,6 +826,7 @@ var divLinks = [
         document.body.getElementsByClassName("sink-nodes")[0],
         document.body.getElementsByClassName("cycles")[0],
         document.body.getElementsByClassName("traversal-algo")[0],
+        document.body.getElementsByClassName("topological-sort")[0],
         document.body.getElementsByClassName("additional")[0]
     ],
     divContentLinks = [
@@ -799,6 +839,7 @@ var divLinks = [
         document.body.getElementsByClassName("sink-nodes-content")[0],
         document.body.getElementsByClassName("cycles-content")[0],
         document.body.getElementsByClassName("traversal-algo-content")[0],
+        document.body.getElementsByClassName("topological-sort-content")[0],
         document.body.getElementsByClassName("additional-content")[0]
     ];
 
@@ -827,20 +868,22 @@ function divsFunctionList(divIndex) {
         case 7:
             return canvasGraph.getFundamentalCycles;
         case 8:
-            return function() { return [] ; } ;
+            return function() { return [] ; } ; //traversal algorithms
         case 9:
+            return canvasGraph.getTopologicalSort;
+        case 10:
             return canvasGraph.getAdditionalInfo;
     }
 }
 
 var multipleTables = [
-        1, 0, 0, 0, 1, 1, 1, 0, 0, 0
+        1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0
     ],
     needTableNumeration = [
-        false, true, true, true, false, false, false, false, false, false
+        false, true, true, true, false, false, false, false, false, false, false
     ],
     columnWidths = [
-        [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [0, 50,100,100], [130,50]
+        [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [0, 50,100,100], [50,50], [130,50]
     ] ;
 
 function updateAllInfo() {
@@ -875,6 +918,11 @@ function updateAllInfo() {
             }
         })();
     }
+}
+
+function updateAllFunctions() {
+    for (var i = 0; i < divsCount; ++i)
+        divsFunctionList(i)();
 }
 
 $(".traversal-choose").on("click", function() {
