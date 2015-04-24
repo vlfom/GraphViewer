@@ -15,16 +15,16 @@
                     <div class="graph-info">
                         <div id="overlay">
                             <div id="overlay-content">
-                                <div class="traversal-choice">
-                                    <input name="traversal" type="radio" id="dfs" checked> <label for="dfs">DFS</label>
-                                    <input name="traversal" type="radio" id="bfs"> <label for="bfs">BFS</label>
+                                <div class="popup-choice">
+                                    <input name="traversal" type="radio" id="first" checked> <label for="first"></label>
+                                    <input name="traversal" type="radio" id="second"> <label for="second"></label>
                                 </div>
-                                <div class="traversal-start">
-                                    <select name="node-start">
+                                <div class="popup-picker">
+                                    <select name="popup-pick">
                                         <option selected>Choose vertex..</option>
                                     </select>
                                 </div>
-                                <div class="traversal-choose">
+                                <div class="popup-choose">
                                     <p>Choose</p>
                                 </div>
                             </div>
@@ -92,6 +92,13 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="shortest-paths">
+                            <div class="to_scroll">
+                                <div class="shortest-paths-content">
+                                    <p id="shortest-paths-name"></p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="additional">
                             <div class="to_scroll">
                                 <div class="additional-content">
@@ -123,6 +130,7 @@
                                 <li>Fundamental cycles</li>
                                 <li>Traversal algorithms</li>
                                 <li>Topological sort</li>
+                                <li>Shortest paths</li>
                                 <li>Additional info</li>
                                 <li>Reset graph</li>
                             </ul>
@@ -132,6 +140,7 @@
             </div>
             <div class="user-interface">
                 <div class="user-interface-content">
+                    <input type="button" id="settings" value="Settings">
                     <input type="file" id="fileinput"/>
                 </div>
             </div>

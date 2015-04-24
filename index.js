@@ -147,11 +147,13 @@ function TopologicalSort(myGraph) {
 function Node(index) {
     this.index = index;
     this.edges_list = [];
+    this.edges_weight = [] ;
     this.inDegree = 0;
     this.outDegree = 0;
 
-    this.appendEdge = function (edgeTo) {
+    this.appendEdge = function (edgeTo, edgeWeight) {
         this.edges_list.push(edgeTo);
+        this.edges_weight.push(edgeWeight);
     };
 }
 
@@ -194,7 +196,7 @@ function Graph(NODES_COUNT) {
     this.addEdge = function (nodeStart, nodeFinish, nodeWeight) {
         ++cThis.EDGES_COUNT;
 
-        cThis.NodeList[nodeStart].appendEdge(nodeFinish);
+        cThis.NodeList[nodeStart].appendEdge(nodeFinish, nodeWeight);
         cThis.EdgeList.push({from: nodeStart, to: nodeFinish, weight: nodeWeight});
 
         ++cThis.NodeList[nodeStart].outDegree;
@@ -241,13 +243,13 @@ function Graph(NODES_COUNT) {
         context.lineWidth = width;
         for (var i = 0; i < cThis.NodeList[nodeStart].edges_list.length; ++i) {
             if (cThis.NodeList[nodeStart] == cThis.NodeList[cThis.NodeList[nodeStart].edges_list[i]])
-                canvas.drawArrow(cThis.NodeList[nodeStart], cThis.NodeList[nodeStart], context);
+                canvas.drawArrow(cThis.NodeList[nodeStart], cThis.NodeList[nodeStart], cThis.NodeList[nodeStart].edges_weight[i], context);
             else {
                 var point1 = jQuery.extend({}, cThis.NodeList[nodeStart]),
                     point2 = jQuery.extend({}, cThis.NodeList[cThis.NodeList[nodeStart].edges_list[i]]);
 
                 var shortenedLine = canvas.shortenLine(point1, point2, VERTEX_RADIUS);
-                canvas.drawArrow(shortenedLine[0], shortenedLine[1], context);
+                canvas.drawArrow(shortenedLine[0], shortenedLine[1], cThis.NodeList[nodeStart].edges_weight[i], context);
             }
         }
     };
@@ -511,13 +513,10 @@ function Graph(NODES_COUNT) {
                 bfsVisited = new Array(cThis.NODES_COUNT);
             bfsVisited[startVertex] = true;
             while (bfsStack.length) {
-                console.log(bfsStack);
                 curVertex = bfsStack[0];
                 foundSomething = false;
-                console.log(curVertex, cThis.NodeList[curVertex].edges_list);
                 for (i = 0; i < cThis.NodeList[curVertex].edges_list.length; ++i) {
                     nextVertex = cThis.NodeList[curVertex].edges_list[i];
-                    console.log(curVertex, nextVertex);
                     if (!bfsVisited[nextVertex]) {
                         bfsVisited[nextVertex] = true;
                         bfsStack.push(nextVertex);
@@ -634,7 +633,6 @@ function readFile(evt) {
                 else if (edgeTo == null)
                     edgeTo = recNumber - 1;
                 else {
-                    console.log(edgeParent, edgeTo, recNumber) ;
                     canvasGraph.addEdge(edgeParent, edgeTo, recNumber);
                     edgeParent = null;
                     edgeTo = null;
@@ -754,34 +752,50 @@ canvas.shortenLine = function (point1, point2, dLength) {
     return [point1, point2];
 };
 
-canvas.drawArrow = function (point1, point2, context) {
+canvas.drawArrow = function (point1, point2, value, context) {
     var lineAngle = canvas.lineAngle(point1, point2),
         angleLeft,
         angleRight,
         arrowLength = 10;
 
     if (point1 != point2) {
+        context.strokeStyle = "black";
         context.beginPath();
         context.moveTo(point1.x, point1.y);
         context.lineTo(point2.x, point2.y);
         context.stroke();
 
-        var pc = {
-            x: (point1.x + point2.x)/2,
-            y: (point1.y + point2.y)/2
-            },
-            sqSize = 10 ;
-        context.beginPath();
-        context.moveTo(pc.x - sqSize, pc.y - sqSize) ;
-        context.lineTo(pc.x - sqSize, pc.y + sqSize) ;
-        context.lineTo(pc.x + sqSize, pc.y + sqSize) ;
-        context.lineTo(pc.x + sqSize, pc.y - sqSize) ;
-        context.lineTo(pc.x - sqSize, pc.y - sqSize) ;
-        context.stroke() ;
-
+        if( value != null ) {
+            var pc = {
+                    x: (point1.x + point2.x) / 2,
+                    y: (point1.y + point2.y) / 2
+                },
+                sqSize = 10;
+            context.fillStyle = "lightgray";
+            context.beginPath();
+            context.moveTo(pc.x - sqSize, pc.y - sqSize);
+            context.lineTo(pc.x - sqSize, pc.y + sqSize);
+            context.lineTo(pc.x + sqSize, pc.y + sqSize);
+            context.lineTo(pc.x + sqSize, pc.y - sqSize);
+            context.lineTo(pc.x - sqSize, pc.y - sqSize);
+            context.fill();
+            context.strokeStyle = "black";
+            context.beginPath();
+            context.moveTo(pc.x - sqSize, pc.y - sqSize);
+            context.lineTo(pc.x - sqSize, pc.y + sqSize);
+            context.lineTo(pc.x + sqSize, pc.y + sqSize);
+            context.lineTo(pc.x + sqSize, pc.y - sqSize);
+            context.lineTo(pc.x - sqSize, pc.y - sqSize);
+            context.stroke();
+            context.fillStyle = "black";
+            context.font = "14px Consolas";
+            var numberLength = Math.floor(Math.log(value) / Math.log(10) + 1e-5);
+            context.fillText(value + "", pc.x - 3 * numberLength - 4, pc.y + 4);
+        }
         angleLeft = lineAngle - Math.PI / 6;
         angleRight = lineAngle + Math.PI / 6;
 
+        context.fillStyle = "black";
         context.beginPath();
         context.moveTo(point2.x - arrowLength * Math.cos(angleLeft), point2.y - arrowLength * Math.sin(angleLeft));
         context.lineTo(point2.x, point2.y);
@@ -902,19 +916,22 @@ var multipleTables = [
 function updateAllInfo() {
     var newOption = document.createElement("option");
     newOption.appendChild(document.createTextNode("Pick start vertex.."));
-    $("select[name=\"node-start\"]").empty().append(newOption);
+    $("select[name=\"popup-pick\"]").empty().append(newOption);
     for (j = 0; j < canvasGraph.NODES_COUNT; ++j) {
         newOption = document.createElement("option");
         newOption.appendChild(document.createTextNode("Vertex " + (j + 1)));
-        $("select[name=\"node-start\"]").append(newOption);
+        $("select[name=\"popup-pick\"]").append(newOption);
     }
     for (var i = 0; i < divsCount; ++i) {
         document.body.getElementsByTagName("li")[i].onclick = (function () {
             var remI = i;
             return function () {
                 var j;
-                if (remI == 8)
+                if (remI == 8) {
+                    $("label[for=\"first\"]").text("DFS") ;
+                    $("label[for=\"second\"]").text("BFS") ;
                     $("#overlay").css("visibility", "visible");
+                }
                 else {
                     for (j = 0; j < divsCount; ++j)
                         divLinks[j].style.zIndex = 0;
@@ -938,17 +955,17 @@ function updateAllFunctions() {
         divsFunctionList(i)();
 }
 
-$(".traversal-choose").on("click", function() {
+$(".popup-choose").on("click", function() {
     $("#overlay").css("visibility", "hidden");
     for (j = 0; j < divsCount; ++j)
         divLinks[j].style.zIndex = 0;
     divLinks[8].style.zIndex = 10;
     removeDivTables(8);
     var traversalType,
-        startNode = parseInt($("select[name=\"node-start\"] option:selected").text()[7]) - 1;
-    if ($('input[type=radio][id="dfs"]:checked').val())
+        startNode = parseInt($("select[name=\"popup-pick\"] option:selected").text()[7]) - 1;
+    if ($('input[type=radio][id="first"]:checked').val())
         traversalType = "DFS";
-    else if ($('input[type=radio][id="bfs"]:checked').val())
+    else if ($('input[type=radio][id="second"]:checked').val())
         traversalType = "BFS";
     if (isNaN(startNode))
         $("#traversal-algo-name").text("You did not pick start vertex");
@@ -957,7 +974,7 @@ $(".traversal-choose").on("click", function() {
         divContentLinks[8].appendChild(createTable(
             canvasGraph.getTraversalAlgorithmsInfo(
                 traversalType,
-                parseInt($("select[name=\"node-start\"] option:selected").text()[7]) - 1
+                parseInt($("select[name=\"popup-pick\"] option:selected").text()[7]) - 1
             ),
             needTableNumeration[8], columnWidths[8]
         ));
@@ -1023,3 +1040,7 @@ function createTable(matrix, addIndexes, tdWidth) {
     canvasGraph.prepareToDisplay();
     canvasGraph.updateInfo() ;
 })() ;
+
+$("#settings").on("click", function() {
+
+}) ;
