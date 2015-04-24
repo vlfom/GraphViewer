@@ -609,7 +609,6 @@ function refreshImage() {
 refreshImage();
 
 function readFile(evt) {
-    //Retrieve the first (and only!) File from the FileList object
     var f = evt.target.files[0];
 
     if (f) {
@@ -635,6 +634,7 @@ function readFile(evt) {
                 else if (edgeTo == null)
                     edgeTo = recNumber - 1;
                 else {
+                    console.log(edgeParent, edgeTo, recNumber) ;
                     canvasGraph.addEdge(edgeParent, edgeTo, recNumber);
                     edgeParent = null;
                     edgeTo = null;
@@ -765,6 +765,19 @@ canvas.drawArrow = function (point1, point2, context) {
         context.moveTo(point1.x, point1.y);
         context.lineTo(point2.x, point2.y);
         context.stroke();
+
+        var pc = {
+            x: (point1.x + point2.x)/2,
+            y: (point1.y + point2.y)/2
+            },
+            sqSize = 10 ;
+        context.beginPath();
+        context.moveTo(pc.x - sqSize, pc.y - sqSize) ;
+        context.lineTo(pc.x - sqSize, pc.y + sqSize) ;
+        context.lineTo(pc.x + sqSize, pc.y + sqSize) ;
+        context.lineTo(pc.x + sqSize, pc.y - sqSize) ;
+        context.lineTo(pc.x - sqSize, pc.y - sqSize) ;
+        context.stroke() ;
 
         angleLeft = lineAngle - Math.PI / 6;
         angleRight = lineAngle + Math.PI / 6;
