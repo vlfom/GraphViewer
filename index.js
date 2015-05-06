@@ -841,7 +841,7 @@ function resetTdHover() {
         }
 }
 
-var divsCount = 11 ;
+var divsCount = 12 ;
 
 var divLinks = [
         document.body.getElementsByClassName("input-info")[0],
@@ -854,6 +854,7 @@ var divLinks = [
         document.body.getElementsByClassName("cycles")[0],
         document.body.getElementsByClassName("traversal-algo")[0],
         document.body.getElementsByClassName("topological-sort")[0],
+        document.body.getElementsByClassName("shortest-paths")[0],
         document.body.getElementsByClassName("additional")[0]
     ],
     divContentLinks = [
@@ -867,6 +868,7 @@ var divLinks = [
         document.body.getElementsByClassName("cycles-content")[0],
         document.body.getElementsByClassName("traversal-algo-content")[0],
         document.body.getElementsByClassName("topological-sort-content")[0],
+        document.body.getElementsByClassName("shortest-paths-content")[0],
         document.body.getElementsByClassName("additional-content")[0]
     ];
 
@@ -899,18 +901,20 @@ function divsFunctionList(divIndex) {
         case 9:
             return canvasGraph.getTopologicalSort;
         case 10:
+            return function() { return [] ; } ; //shortest path algorithms
+        case 11:
             return canvasGraph.getAdditionalInfo;
     }
 }
 
 var multipleTables = [
-        1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0
+        1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0
     ],
     needTableNumeration = [
-        false, true, true, true, false, false, false, false, false, false, false
+        false, true, true, true, false, false, false, false, false, false, false, false
     ],
     columnWidths = [
-        [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [0, 50,100,100], [50,50], [130,50]
+        [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [0, 50,100,100], [50,50], [], [130,50]
     ] ;
 
 function updateAllInfo() {
@@ -928,8 +932,15 @@ function updateAllInfo() {
             return function () {
                 var j;
                 if (remI == 8) {
+                    state = "traversal" ;
                     $("label[for=\"first\"]").text("DFS") ;
                     $("label[for=\"second\"]").text("BFS") ;
+                    $("#overlay").css("visibility", "visible");
+                }
+                else if (remI == 10) {
+                    state = "shortest" ;
+                    $("label[for=\"first\"]").text("Dejkstra") ;
+                    $("label[for=\"second\"]").text("Ford-Bellman") ;
                     $("#overlay").css("visibility", "visible");
                 }
                 else {
@@ -955,6 +966,8 @@ function updateAllFunctions() {
         divsFunctionList(i)();
 }
 
+var state ;
+
 $(".popup-choose").on("click", function() {
     $("#overlay").css("visibility", "hidden");
     for (j = 0; j < divsCount; ++j)
@@ -963,13 +976,14 @@ $(".popup-choose").on("click", function() {
     removeDivTables(8);
     var traversalType,
         startNode = parseInt($("select[name=\"popup-pick\"] option:selected").text()[7]) - 1;
-    if ($('input[type=radio][id="first"]:checked').val())
-        traversalType = "DFS";
-    else if ($('input[type=radio][id="second"]:checked').val())
-        traversalType = "BFS";
+
     if (isNaN(startNode))
         $("#traversal-algo-name").text("You did not pick start vertex");
-    else {
+    else if( state == "traversal" ) {
+        if ($('input[type=radio][id="first"]:checked').val())
+            traversalType = "DFS";
+        else if ($('input[type=radio][id="second"]:checked').val())
+            traversalType = "BFS";
         $("#traversal-algo-name").text(traversalType + " traverse order");
         divContentLinks[8].appendChild(createTable(
             canvasGraph.getTraversalAlgorithmsInfo(
@@ -978,6 +992,8 @@ $(".popup-choose").on("click", function() {
             ),
             needTableNumeration[8], columnWidths[8]
         ));
+    } else if( state == "shortest" ) {
+
     }
 }) ;
 
