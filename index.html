@@ -27,15 +27,18 @@
                                     <select name="popup-make-choice3">
                                     </select>
                                 </div>
-                                <div class="popup-choose">
+                                <div class="popup-choose popup-confirm">
                                     <p>Choose</p>
+                                </div>
+                                <div class="popup-choose popup-decline">
+                                    <p>Cancel</p>
                                 </div>
                             </div>
                         </div>
                         <div class="content-div">
                             <div class="to_scroll">
                                 <div class="content">
-                                    <p>Distance matrix</p>
+                                    <p class="content-description"></p>
                                 </div>
                             </div>
                         </div>
@@ -46,7 +49,7 @@
                                 <p>Menu</p>
                             </div>
                             <ul>
-                                <li onclick="handleMenu('input')">
+                                <li onclick="handleMenu('input-info')">
                                     Input info
                                 </li>
                                 <li onclick="handleMenu('connectivity')">

@@ -593,8 +593,6 @@ function Graph(NODES_COUNT) {
     } ;
 
     this.updateInfo = function() {
-        updateAllInfo() ;
-        updateAllFunctions() ;
         $("#input-info").click();
     } ;
 }
@@ -833,38 +831,33 @@ canvas.drawArrow = function (point1, point2, value, context) {
 };
 
 
-function resetTdHover() {
-    var tableTDs = document.body.getElementsByTagName("td");
-    for (var i = 0; i < tableTDs.length; ++i)
-        tableTDs[i].onmouseover = function () {
+function createTable(matrix, tdWidth) {
+    var newTable = document.createElement("table"),
+        matrixHeight = matrix.length,
+        newTr, newTd, i, j;
+
+    for (i = 0; i < matrixHeight; ++i) {
+        newTr = document.createElement("tr");
+        for (j = 0; j < matrix[i].length; ++j) {
+            newTd = document.createElement("td");
+            newTd.appendChild(document.createTextNode("" + matrix[i][j]));
+            if(tdWidth && tdWidth[j])
+                newTd.style.width = tdWidth[j] + "px" ;
+            newTr.appendChild(newTd);
         }
+        newTable.appendChild(newTr);
+    }
+
+    return newTable;
 }
 
-var multipleTables = [
-        1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0
-    ],
-    needTableNumeration = [
-        false, true, true, true, false, false, false, false, false, false, false, false
-    ],
-    columnWidths = [
-        [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [0, 50,100,100], [50,50], [], [130,50]
-    ] ;
-
-
-function multipleTables(itemName) {
-    if( itemName == "vertices-degree" ||
-            itemName == "weakly-connected-components" ||
-            itemname == "strongly-connected-components" ||
-            itemName == "dijkstra" ||
-            itemName == "ford-bellman" ||
-            itemName == "fundamental-cycles" ||
-            itemName == "negative-cycles" ||
-            itemName == "dfs" ||
-            itemName == "bfs" ||
-            itemName == "leafs" ||
-            itemName == "source-vertices" )
-        return true ;
-    return false ;
+function columnWidths(itemName) {
+    switch(itemName) {
+        case "input-info":
+            return [55,40,35,50] ;
+        default:
+            return [] ;
+    }
 }
 
 function verticesWithHeadText(headText) {
@@ -881,9 +874,9 @@ var dropdownFunctions = [
 ] ;
 
 function needPopup(itemName) {
-    if( itemName == "input" ||
-        itemName == "additional" ||
-        itemName == "reset" )
+    if( itemName == "input-info" ||
+        itemName == "additional-info" ||
+        itemName == "reset-graph" )
         return false ;
     return true ;
 }
@@ -904,8 +897,8 @@ function dropdown1list(itemName) {
             ] ;
         case "distances":
             return [
-                ["Between all vertices", 0],
-                ["From one to all vertices", 1]
+                ["Between all vertices", 1],
+                ["From one to all vertices", 2]
             ] ;
         case "cycles":
             return [
@@ -922,7 +915,7 @@ function dropdown1list(itemName) {
                 ["DFS", 1],
                 ["BFS", 1]
             ] ;
-        case "special":
+        case "special-vertices":
             return [
                 ["Leafs", 0],
                 ["Source vertices", 0]
@@ -932,38 +925,214 @@ function dropdown1list(itemName) {
 
 function dropdown2list(itemName) {
     switch (itemName) {
-        case "distances":
+        case "Between all vertices":
+            return [
+                "Floyd-Warshall algorithm"
+            ] ;
+        case "From one to all vertices":
+            return [
+                "Dijkstra algorithm",
+                "Ford-Bellman algorithm"
+            ] ;
+        case "Minimum flow":
+        case "Maximum flow":
             return verticesWithHeadText("Select start vertex:") ;
-        case "flow":
-            return verticesWithHeadText("Select start vertex:") ;
-        case "traversal":
+        case "DFS":
+        case "BFS":
             return verticesWithHeadText("Select start vertex:") ;
     }
 }
 
 function dropdown3list(itemName) {
     switch (itemName) {
-        case "flow":
-            return verticesWithHeadText("Select end vertex:") ;
+        case "From one to all vertices":
+            return verticesWithHeadText("Select start vertex: ") ;
+        case "Minimum flow":
+        case "Maximum flow":
+            return verticesWithHeadText("Select end vertex: ") ;
     }
 }
 
+function getTableContent(itemName) {
+    switch (itemName) {
+        case "input-info" :
+            return canvasGraph.getFormattedEdgesList;
+        case "reachability-matrix" :
+            return;
+        case "adjacency-matrix" :
+            return;
+        case "incidence-matrix" :
+            return;
+        case "vertices-degree" :
+            return;
+        case "weakly-connected-components" :
+            return;
+        case "strongly-connected-components" :
+            return;
+        case "floyd-warshall" :
+            return;
+        case "dijkstra" :
+            return;
+        case "ford-bellman" :
+            return;
+        case "fundamental-cycles" :
+            return;
+        case "negative-cycles" :
+            return;
+        case "min-flow" :
+            return;
+        case "max-flow" :
+            return;
+        case "dfs" :
+            return;
+        case "bfs" :
+            return;
+        case "leafs" :
+            return;
+        case "source-vertices" :
+            return;
+        case "additional-info" :
+            return;
+        case "reset-graph" :
+            return;
+    }
+}
+
+function getContentDescription(itemName) {
+    switch (itemName) {
+        case "input-info" :
+            return "Input information";
+        case "reachability-matrix" :
+            return;
+        case "adjacency-matrix" :
+            return;
+        case "incidence-matrix" :
+            return;
+        case "vertices-degree" :
+            return;
+        case "weakly-connected-components" :
+            return;
+        case "strongly-connected-components" :
+            return;
+        case "floyd-warshall" :
+            return;
+        case "dijkstra" :
+            return;
+        case "ford-bellman" :
+            return;
+        case "fundamental-cycles" :
+            return;
+        case "negative-cycles" :
+            return;
+        case "min-flow" :
+            return;
+        case "max-flow" :
+            return;
+        case "dfs" :
+            return;
+        case "bfs" :
+            return;
+        case "leafs" :
+            return;
+        case "source-vertices" :
+            return;
+        case "additional-info" :
+            return;
+        case "reset-graph" :
+            return;
+    }
+}
+
+var mainContent = document.getElementsByClassName("content")[0] ;
+var mainContentDescription = $(".content-description") ;
+
+$(".popup-decline").on("click", function() {
+    $("#overlay").css("visibility", "hidden");
+    $(".choice1").css("visibility", "hidden");
+    $(".choice2").css("visibility", "hidden");
+    $(".choice3").css("visibility", "hidden");
+}) ;
+
+var dropdownList1, dropdownList2, dropdownList3 ;
 function handleMenu(itemName) {
     if( needPopup(itemName) ) {
         $("#overlay").css("visibility", "visible");
         $(".choice1").css("visibility", "visible");
         $(".choice2").css("visibility", "hidden");
         $(".choice3").css("visibility", "hidden");
+
+        dropdownList1 = dropdown1list(itemName) ;
+        var newOption = document.createElement("option");
+        newOption.appendChild(document.createTextNode("..."));
+        $("select[name=\"popup-make-choice1\"]").empty().append(newOption);
+        for( var i = 0 ; i < dropdownList1.length ; ++i ) {
+            newOption = document.createElement("option") ;
+            newOption.appendChild(
+                document.createTextNode( dropdownList1[i][0] )
+            );
+            $("select[name=\"popup-make-choice1\"]").append(newOption);
+        }
     }
     else {
-        while (divContentLinks[divIndex].getElementsByTagName("table")[0] != undefined)
-            divContentLinks[divIndex].removeChild(divLinks[divIndex].getElementsByTagName("table")[0]);
-        if (multipleTables[remI])
-            for (j = 0; j < divsFunctionList(remI)().length; ++j)
-                divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)()[j],
-                    needTableNumeration[remI], columnWidths[remI]));
-        else
-            divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)(),
-                needTableNumeration[remI], columnWidths[remI]));
+        while (mainContent.getElementsByTagName("table")[0] != undefined)
+            mainContent.removeChild(mainContent.getElementsByTagName("table")[0]);
+        mainContentDescription.text( getContentDescription(itemName) ) ;
+        for (j = 0; j < getTableContent(itemName)().length; ++j)
+            mainContent.appendChild(
+                createTable(getTableContent(itemName)()[j],
+                columnWidths(itemName))
+            );
     }
 }
+
+$( "select[name=\"popup-make-choice1\"]").on("change", "", function() {
+    $(".choice2").css("visibility", "hidden");
+    $(".choice3").css("visibility", "hidden");
+
+    for( var i = 0 ; i < dropdownList1.length ; ++i )
+        if( dropdownList1[i][0] == this.value ) {
+            var newOption ;
+            if( dropdownList1[i][1] > 0 ) {
+                $(".choice2").css("visibility", "visible");
+                $(".choice3").css("visibility", "hidden");
+                dropdownList2 = dropdown2list(this.value) ;
+                $("select[name=\"popup-make-choice2\"]").empty() ;
+                for( var j = 0 ; j < dropdownList2.length ; ++j ) {
+                    newOption = document.createElement("option") ;
+                    newOption.appendChild(
+                        document.createTextNode( dropdownList2[j] )
+                    );
+                    $("select[name=\"popup-make-choice2\"]").append(newOption);
+                }
+            }
+            if( dropdownList1[i][1] > 1 ) {
+                $(".choice3").css("visibility", "visible");
+                dropdownList3 = dropdown3list(this.value) ;
+                $("select[name=\"popup-make-choice3\"]").empty() ;
+                for( var j = 0 ; j < dropdownList3.length ; ++j ) {
+                    newOption = document.createElement("option") ;
+                    newOption.appendChild(
+                        document.createTextNode( dropdownList3[j] )
+                    );
+                    $("select[name=\"popup-make-choice3\"]").append(newOption);
+                }
+            }
+        }
+});
+
+(function() {
+    canvasGraph.clear();
+    canvasGraph.init(7);
+    (function () {
+        for (var i = 0; i < 7; ++i)
+            for (var j = 0; j < 7; ++j)
+                if (i != j)
+                    canvasGraph.addEdge(i, j);
+    })();
+    canvasGraph.prepareToDisplay();
+    canvasGraph.updateInfo() ;
+})() ;
+
+$("#settings").on("click", function() {
+
+}) ;

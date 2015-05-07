@@ -208,6 +208,10 @@ label[for="second"] {
     margin-bottom: 10px ;
 }
 
+.popup-choose:last-child {
+    margin-left: 10px ;
+}
+
 .popup-choose {
     padding: 3px ;
     background: #777 ;
@@ -242,8 +246,9 @@ label[for="second"] {
     display: block ;
 }
 
-select[name="node-start"] {
-    width: 150px ;
+select{
+    padding-left: 5px ;
+    padding-right: 10px ;
 }
 
 .to_scroll {
