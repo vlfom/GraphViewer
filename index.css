@@ -185,6 +185,10 @@ body {
     color: rgb(50, 50, 50);
 }
 
+.additional-content-description {
+    font-size: 14px ;
+}
+
 input[type="radio"] {
     margin-right: 5px ;
 }
