@@ -179,14 +179,15 @@ body {
 }
 
 .content p {
-    margin-bottom: 20px;
     font-family: Aller, sans-serif;
     font-size: 18px;
     color: rgb(50, 50, 50);
 }
 
-.additional-content-description {
+p.additional-content-description {
     font-size: 14px ;
+    margin-top: 2px ;
+    margin-bottom: 20px;
 }
 
 input[type="radio"] {

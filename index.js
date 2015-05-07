@@ -295,10 +295,8 @@ function Graph(NODES_COUNT) {
                             else
                                 cThis.DistanceMatrix[i][j] = Math.min(cThis.DistanceMatrix[i][j], cThis.DistanceMatrix[i][k] + cThis.DistanceMatrix[k][j]);
                         }
-            for (i = 0; i < cThis.NODES_COUNT; ++i)
-                for (j = 0; j < cThis.NODES_COUNT; ++j)
-                    if (isNaN(cThis.DistanceMatrix[i][j]))
-                        cThis.DistanceMatrix[i][j] = -1;
+
+            cThis.DistanceMatrix = [cThis.DistanceMatrix] ;
         }
         return cThis.DistanceMatrix;
     };
@@ -372,6 +370,7 @@ function Graph(NODES_COUNT) {
                         cThis.IncidenceMatrix[i][j] = 1;
                     else
                         cThis.IncidenceMatrix[i][j] = 0;
+            cThis.IncidenceMatrix = [cThis.IncidenceMatrix] ;
         }
         return cThis.IncidenceMatrix;
     };
@@ -543,14 +542,15 @@ function Graph(NODES_COUNT) {
     this.getTopologicalSort = function () {
         if (!cThis.TopologicalSort) {
             var getCycles = FundamentalCycleList(cThis) ;
-            if (getCycles.length == cThis.NODES_COUNT) {
-                cThis.TopologicalSort = [["Index","Vertex"]] ;
+            if (getCycles[0].length == cThis.NODES_COUNT) {
+                cThis.TopologicalSort = [["Order","Vertex"]] ;
                 var getSort = TopologicalSort(cThis);
                 for (var i = 0; i < getSort.length; ++i)
                     cThis.TopologicalSort.push([""+(i+1),getSort[i]+1]) ;
             }
             else
                 cThis.TopologicalSort = [["-"]] ;
+            cThis.TopologicalSort = [cThis.TopologicalSort] ;
         }
         return cThis.TopologicalSort ;
     };
@@ -857,13 +857,77 @@ function createTable(matrix, tdWidth) {
     return newTable;
 }
 
-function columnWidths(item1, item2, item3) {
-    switch(item1) {
+function columnWidths(item0, item1, item2, item3) {
+    switch(item0) {
         case "input-info":
             return [55,40,35,50] ;
+        case "connectivity" :
+            switch(item1) {
+                case "Reachability matrix" :
+                    return [];
+                case "Adjacency matrix" :
+                    return [];
+                case "Incidence matrix" :
+                    return [];
+                case "Vertices degree" :
+                    return [55, 55, 55];
+            }
+            return [] ;
+        case "components" :
+            switch(item1) {
+                case "Weakly connected components" :
+                    return [] ;
+                case "Strongly connected components" :
+                    return [] ;
+            }
+            return [] ;
+        case "distances":
+            switch(item1) {
+                case "Between all vertices" :
+                    return [] ;
+                case "From one to all vertices" :
+                    return [] ;
+            }
+            return;
+        case "cycles":
+            switch(item1) {
+                case "Fundamental cycles" :
+                    return [] ;
+                case "Negative cycles" :
+                    return [] ;
+            }
+            return;
+        case "flow":
+            switch(item1) {
+                case "Minimum flow" :
+                    return [] ;
+                case "Maximum flow" :
+                    return [] ;
+            }
+            return [];
+        case "traversal":
+            switch(item1) {
+                case "Topological sort":
+                    return [50, 50] ;
+                case "DFS":
+                case "BFS":
+                    return [0, 50, 100, 200];
+            }
+            return [] ;
+        case "special":
+            switch(item1) {
+                case "Leafs" :
+                    return [] ;
+                case "Source vertices" :
+                    return [] ;
+            }
+            return [] ;
+        case "additional":
+            return [] ;
         default:
             return [] ;
     }
+
 }
 
 function verticesWithHeadText(headText) {
@@ -911,10 +975,11 @@ function dropdown1list(itemName) {
             ] ;
         case "traversal":
             return [
+                ["Topological sort", 0],
                 ["DFS", 1],
                 ["BFS", 1]
             ] ;
-        case "special-vertices":
+        case "special":
             return [
                 ["Leafs", 0],
                 ["Source vertices", 0]
@@ -952,6 +1017,23 @@ function dropdown3list(itemName) {
     }
 }
 
+function dropdown2MustNotBeNull(itemName) {
+    if( itemName == "Minimum flow" ||
+        itemName == "Maximum flow" ||
+        itemName == "DFS" ||
+        itemName == "BFS" )
+        return true ;
+    return false ;
+}
+
+function dropdown3MustNotBeNull(itemName) {
+    if( itemName == "Minimum flow" ||
+        itemName == "Maximum flow" ||
+        itemName == "From one to all vertices" )
+        return true ;
+    return false ;
+}
+
 function getTableContent(item0, item1, item2, item3) {
     var vertexStart ;
     var vertexEnd ;
@@ -985,7 +1067,6 @@ function getTableContent(item0, item1, item2, item3) {
                 case "Between all vertices" :
                     switch(item2) {
                         case "Floyd-Warshall algorithm":
-                            //TODO
                             return canvasGraph.getDistanceMatrix() ;
                     }
                 return ;
@@ -1027,6 +1108,8 @@ function getTableContent(item0, item1, item2, item3) {
         case "traversal":
             vertexStart = parseInt(item2.substring(7, item2.length)) - 1 ;
             switch(item1) {
+                case "Topological sort" :
+                    return canvasGraph.getTopologicalSort() ;
                 case "DFS" :
                     return canvasGraph.getTraversalAlgorithmsInfo(
                         "DFS",
@@ -1066,6 +1149,7 @@ function getContentDescription(item0, item1, item2, item3) {
                 case "Vertices degree" :
                     return "Vertices degree";
             }
+            return ;
         case "components" :
             switch(item1) {
                 case "Weakly connected components" :
@@ -1079,7 +1163,7 @@ function getContentDescription(item0, item1, item2, item3) {
                 case "Between all vertices" :
                     return "Distances between all vertices" ;
                 case "From one to all vertices" :
-                    vertexStart = parseInt(item3.substring(7, item3.length)) - 1 ;
+                    vertexStart = parseInt(item3.substring(7, item3.length)) ;
                     return "Distances from " + vertexStart + " to all vertices" ;
             }
             return;
@@ -1092,8 +1176,8 @@ function getContentDescription(item0, item1, item2, item3) {
             }
             return;
         case "flow":
-            vertexStart = parseInt(item2.substring(7, item2.length)) - 1 ;
-            vertexEnd = parseInt(item3.substring(7, item3.length)) - 1 ;
+            vertexStart = parseInt(item2.substring(7, item2.length)) ;
+            vertexEnd = parseInt(item3.substring(7, item3.length)) ;
             switch(item1) {
                 case "Minimum flow" :
                     return "Minimum flow from " + vertexStart + " to " + vertexEnd + " vertices" ;
@@ -1102,29 +1186,25 @@ function getContentDescription(item0, item1, item2, item3) {
             }
             return;
         case "traversal":
-            vertexStart = parseInt(item2.substring(7, item2.length)) - 1 ;
             switch(item1) {
-                case "DFS" :
-                    return canvasGraph.getTraversalAlgorithmsInfo(
-                        "DFS",
-                        vertexStart
-                    ) ;
-                case "BFS" :
-                    return canvasGraph.getTraversalAlgorithmsInfo(
-                        "BFS",
-                        vertexStart
-                    ) ;
+                case "Topological sort" :
+                    return "Topological sort order" ;
+                case "DFS":
+                case "BFS":
+                    vertexStart = parseInt(item2.substring(7, item2.length)) ;
+                    return "Visit order from " + vertexStart + " vertex" ;
             }
             return;
         case "special":
             switch(item1) {
                 case "Leafs" :
-                    return canvasGraph.getSinkNodes() ;
+                    return "List of leaf vertices" ;
                 case "Source vertices" :
-                    return canvasGraph.getSourceNodes() ;
+                    return "List of source vertices" ;
             }
+            return;
         case "additional":
-            return canvasGraph.getAdditionalInfo() ;
+            return "Additional information" ;
     }
 }
 
@@ -1143,6 +1223,7 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
                 case "Vertices degree" :
                     return null;
             }
+            return null ;
         case "components" :
             switch(item1) {
                 case "Weakly connected components" :
@@ -1150,7 +1231,7 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
                 case "Strongly connected components" :
                     return null ;
             }
-            return;
+            return null;
         case "distances":
             switch(item1) {
                 case "Between all vertices" :
@@ -1158,7 +1239,7 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
                         case "Floyd-Warshall algorithm":
                             return "using Floyd-Warshall algorithm" ;
                     }
-                    return ;
+                    return null;
                 case "From one to all vertices" :
                     vertexStart = parseInt(item3.substring(7, item3.length)) - 1 ;
                     switch(item2) {
@@ -1167,9 +1248,9 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
                         case "Ford-Bellman algorithm":
                             return "using Ford-Bellman algorithm" ;
                     }
-                    return ;
+                    return null;
             }
-            return;
+            return null;
         case "cycles":
             switch(item1) {
                 case "Fundamental cycles" :
@@ -1177,7 +1258,7 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
                 case "Negative cycles" :
                     return null ;
             }
-            return;
+            return null;
         case "flow":
             vertexStart = parseInt(item2.substring(7, item2.length)) - 1 ;
             vertexEnd = parseInt(item3.substring(7, item3.length)) - 1 ;
@@ -1187,7 +1268,7 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
                 case "Maximum flow" :
                     return null ;
             }
-            return;
+            return null;
         case "traversal":
             vertexStart = parseInt(item2.substring(7, item2.length)) - 1 ;
             switch(item1) {
@@ -1196,7 +1277,7 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
                 case "BFS" :
                     return "using Breadth-First Search" ;
             }
-            return;
+            return null;
         case "special":
             switch(item1) {
                 case "Leafs" :
@@ -1204,6 +1285,7 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
                 case "Source vertices" :
                     return null ;
             }
+            return null ;
         case "additional":
             return null ;
     }
@@ -1213,7 +1295,7 @@ var mainContent = document.getElementsByClassName("content")[0] ;
 var mainContentDescription = $(".content-description"),
     mainAdditionalContentDescription = $(".additional-content-description") ;
 
-var dropdownList1, dropdownList2, dropdownList3, item0, item1, item2, item3 ;
+var dropdownList1, dropdownList2, dropdownList3, dropdownsCount, item0, item1, item2, item3 ;
 function handleMenu(itemName) {
     item0 = itemName ;
     if( needPopup(itemName) ) {
@@ -1235,6 +1317,7 @@ function handleMenu(itemName) {
         }
     }
     else {
+        mainAdditionalContentDescription.text("") ;
         while (mainContent.getElementsByTagName("table")[0] != undefined)
             mainContent.removeChild(mainContent.getElementsByTagName("table")[0]);
         mainContentDescription.text( getContentDescription(itemName) ) ;
@@ -1254,6 +1337,7 @@ $( "select[name=\"popup-make-choice1\"]").on("change", "", function() {
     for( var i = 0 ; i < dropdownList1.length ; ++i )
         if( dropdownList1[i][0] == item1 ) {
             var newOption ;
+            dropdownsCount = dropdownList1[i][1] ;
             if( dropdownList1[i][1] > 0 ) {
                 $(".choice2").css("display", "block");
                 $(".choice3").css("display", "none");
@@ -1283,6 +1367,10 @@ $( "select[name=\"popup-make-choice1\"]").on("change", "", function() {
 });
 
 $(".popup-confirm").on("click", function() {
+    mainAdditionalContentDescription.text("") ;
+    while (mainContent.getElementsByTagName("table")[0] != undefined)
+        mainContent.removeChild(mainContent.getElementsByTagName("table")[0]);
+
     $("#overlay").css("visibility", "hidden");
     $(".choice1").css("display", "none");
     $(".choice2").css("display", "none");
@@ -1291,14 +1379,19 @@ $(".popup-confirm").on("click", function() {
     item2 = $('select[name="popup-make-choice2"]').find(":selected").text();
     item3 = $('select[name="popup-make-choice3"]').find(":selected").text();
 
-    if( item1 == "..." || item2 == "..." || item3 == "..." ) {
-        mainContentDescription.text( "You did not select one of the options" ) ;
+    var item2Index = $('select[name="popup-make-choice2"]')[0].selectedIndex,
+        item3Index = $('select[name="popup-make-choice3"]')[0].selectedIndex ;
+
+    if( (dropdownsCount >= 1 && dropdown2MustNotBeNull(item1) && item2Index == 0) ||
+        (dropdownsCount >= 2 && dropdown3MustNotBeNull(item1) && item3Index == 0) ) {
+        mainContentDescription.text( "You did not select all the needed options" ) ;
         return ;
     }
 
-    while (mainContent.getElementsByTagName("table")[0] != undefined)
-        mainContent.removeChild(mainContent.getElementsByTagName("table")[0]);
     mainContentDescription.text( getContentDescription(item0, item1, item2, item3) ) ;
+    if( getAdditionalContentDescription(item0, item1, item2, item3) != null )
+        mainAdditionalContentDescription.text(getAdditionalContentDescription(item0, item1, item2, item3)) ;
+    console.log( getTableContent(item0, item1, item2, item3) ) ;
     for (j = 0; j < getTableContent(item0, item1, item2, item3).length; ++j)
         mainContent.appendChild(
             createTable(getTableContent(item0, item1, item2, item3)[j],
@@ -1320,7 +1413,7 @@ $(".popup-decline").on("click", function() {
         for (var i = 0; i < 7; ++i)
             for (var j = 0; j < 7; ++j)
                 if (i != j)
-                    canvasGraph.addEdge(i, j);
+                    canvasGraph.addEdge(i, j, 1);
     })();
     canvasGraph.prepareToDisplay();
     canvasGraph.updateInfo() ;
