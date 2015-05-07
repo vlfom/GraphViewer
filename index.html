@@ -15,13 +15,16 @@
                     <div class="graph-info">
                         <div id="overlay">
                             <div id="overlay-content">
-                                <div class="popup-choice">
-                                    <input name="traversal" type="radio" id="first" checked> <label for="first"></label>
-                                    <input name="traversal" type="radio" id="second"> <label for="second"></label>
+                                <div class="popup-choice choice1">
+                                    <select name="popup-make-choice1">
+                                    </select>
                                 </div>
-                                <div class="popup-picker">
-                                    <select name="popup-pick">
-                                        <option selected>Choose vertex..</option>
+                                <div class="popup-choice choice2">
+                                    <select name="popup-make-choice2">
+                                    </select>
+                                </div>
+                                <div class="popup-choice choice3">
+                                    <select name="popup-make-choice3">
                                     </select>
                                 </div>
                                 <div class="popup-choose">
@@ -29,87 +32,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="distance-matrix">
+                        <div class="content-div">
                             <div class="to_scroll">
-                                <div class="distance-matrix-content">
+                                <div class="content">
                                     <p>Distance matrix</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="adjacency-matrix">
-                            <div class="to_scroll">
-                                <div class="adjacency-matrix-content">
-                                    <p>Adjacency matrix</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="incidence-matrix">
-                            <div class="to_scroll">
-                                <div class="incidence-matrix-content">
-                                    <p>Incidence matrix</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="vertices-degree">
-                            <div class="to_scroll">
-                                <div class="vertices-degree-content">
-                                    <p>Vertices degree</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="source-nodes">
-                            <div class="to_scroll">
-                                <div class="source-nodes-content">
-                                    <p>Source vertices</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="sink-nodes">
-                            <div class="to_scroll">
-                                <div class="sink-nodes-content">
-                                    <p>Sink vertices</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cycles">
-                            <div class="to_scroll">
-                                <div class="cycles-content">
-                                    <p>Fundamental cycles list</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="topological-sort">
-                            <div class="to_scroll">
-                                <div class="topological-sort-content">
-                                    <p>Topological sort order</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="traversal-algo">
-                            <div class="to_scroll">
-                                <div class="traversal-algo-content">
-                                    <p id="traversal-algo-name"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="shortest-paths">
-                            <div class="to_scroll">
-                                <div class="shortest-paths-content">
-                                    <p id="shortest-paths-name"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="additional">
-                            <div class="to_scroll">
-                                <div class="additional-content">
-                                    <p>Graph information</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="input-info">
-                            <div class="to_scroll">
-                                <div class="input-info-content">
-                                    <p>Input information</p>
                                 </div>
                             </div>
                         </div>
@@ -120,19 +46,36 @@
                                 <p>Menu</p>
                             </div>
                             <ul>
-                                <li id="input-info">Input info</li>
-                                <li>Distance matrix</li>
-                                <li>Adjacency matrix</li>
-                                <li>Incidence matrix</li>
-                                <li>Vertices degree</li>
-                                <li>Source vertices</li>
-                                <li>Sink vertices</li>
-                                <li>Fundamental cycles</li>
-                                <li>Traversal algorithms</li>
-                                <li>Topological sort</li>
-                                <li>Shortest paths</li>
-                                <li>Additional info</li>
-                                <li>Reset graph</li>
+                                <li onclick="handleMenu('input')">
+                                    Input info
+                                </li>
+                                <li onclick="handleMenu('connectivity')">
+                                    Connectivity
+                                </li>
+                                <li onclick="handleMenu('components')">
+                                    Components
+                                </li>
+                                <li onclick="handleMenu('distances')">
+                                    Distances
+                                </li>
+                                <li onclick="handleMenu('cycles')">
+                                    Cycles
+                                </li>
+                                <li onclick="handleMenu('flow')">
+                                    Flow
+                                </li>
+                                <li onclick="handleMenu('traversal')">
+                                    Traversal algs
+                                </li>
+                                <li onclick="handleMenu('special')">
+                                    Special vertices
+                                </li>
+                                <li onclick="handleMenu('additional')">
+                                    Additional info
+                                </li>
+                                <li onclick="handleMenu('reset')">
+                                    Reset graph
+                                </li>
                             </ul>
                         </div>
                     </div>

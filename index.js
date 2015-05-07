@@ -159,7 +159,7 @@ function Node(index) {
 
 function Graph(NODES_COUNT) {
     var cThis = this;
-    
+
     this.NODES_COUNT = NODES_COUNT;
 
     this.WEIGHTED = 0;
@@ -832,79 +832,12 @@ canvas.drawArrow = function (point1, point2, value, context) {
     }
 };
 
-//CSS
 
 function resetTdHover() {
     var tableTDs = document.body.getElementsByTagName("td");
     for (var i = 0; i < tableTDs.length; ++i)
         tableTDs[i].onmouseover = function () {
         }
-}
-
-var divsCount = 12 ;
-
-var divLinks = [
-        document.body.getElementsByClassName("input-info")[0],
-        document.body.getElementsByClassName("distance-matrix")[0],
-        document.body.getElementsByClassName("adjacency-matrix")[0],
-        document.body.getElementsByClassName("incidence-matrix")[0],
-        document.body.getElementsByClassName("vertices-degree")[0],
-        document.body.getElementsByClassName("source-nodes")[0],
-        document.body.getElementsByClassName("sink-nodes")[0],
-        document.body.getElementsByClassName("cycles")[0],
-        document.body.getElementsByClassName("traversal-algo")[0],
-        document.body.getElementsByClassName("topological-sort")[0],
-        document.body.getElementsByClassName("shortest-paths")[0],
-        document.body.getElementsByClassName("additional")[0]
-    ],
-    divContentLinks = [
-        document.body.getElementsByClassName("input-info-content")[0],
-        document.body.getElementsByClassName("distance-matrix-content")[0],
-        document.body.getElementsByClassName("adjacency-matrix-content")[0],
-        document.body.getElementsByClassName("incidence-matrix-content")[0],
-        document.body.getElementsByClassName("vertices-degree-content")[0],
-        document.body.getElementsByClassName("source-nodes-content")[0],
-        document.body.getElementsByClassName("sink-nodes-content")[0],
-        document.body.getElementsByClassName("cycles-content")[0],
-        document.body.getElementsByClassName("traversal-algo-content")[0],
-        document.body.getElementsByClassName("topological-sort-content")[0],
-        document.body.getElementsByClassName("shortest-paths-content")[0],
-        document.body.getElementsByClassName("additional-content")[0]
-    ];
-
-
-function removeDivTables(divIndex) {
-    while (divContentLinks[divIndex].getElementsByTagName("table")[0] != undefined)
-        divContentLinks[divIndex].removeChild(divLinks[divIndex].getElementsByTagName("table")[0]);
-}
-
-function divsFunctionList(divIndex) {
-    switch (divIndex) {
-        case 0:
-            return canvasGraph.getFormattedEdgesList;
-        case 1:
-            return canvasGraph.getDistanceMatrix;
-        case 2:
-            return canvasGraph.getAdjacencyMatrix;
-        case 3:
-            return canvasGraph.getIncidenceMatrix;
-        case 4:
-            return canvasGraph.getFormattedVerticesDegree;
-        case 5:
-            return canvasGraph.getSourceNodes;
-        case 6:
-            return canvasGraph.getSinkNodes;
-        case 7:
-            return canvasGraph.getFundamentalCycles;
-        case 8:
-            return function() { return [] ; } ; //traversal algorithms
-        case 9:
-            return canvasGraph.getTopologicalSort;
-        case 10:
-            return function() { return [] ; } ; //shortest path algorithms
-        case 11:
-            return canvasGraph.getAdditionalInfo;
-    }
 }
 
 var multipleTables = [
@@ -917,146 +850,120 @@ var multipleTables = [
         [55,40,35,50], [], [], [], [55,55,55], [50,65], [50,70], [], [0, 50,100,100], [50,50], [], [130,50]
     ] ;
 
-function updateAllInfo() {
-    var newOption = document.createElement("option");
-    newOption.appendChild(document.createTextNode("Pick start vertex.."));
-    $("select[name=\"popup-pick\"]").empty().append(newOption);
-    for (j = 0; j < canvasGraph.NODES_COUNT; ++j) {
-        newOption = document.createElement("option");
-        newOption.appendChild(document.createTextNode("Vertex " + (j + 1)));
-        $("select[name=\"popup-pick\"]").append(newOption);
-    }
-    for (var i = 0; i < divsCount; ++i) {
-        document.body.getElementsByTagName("li")[i].onclick = (function () {
-            var remI = i;
-            return function () {
-                var j;
-                if (remI == 8) {
-                    state = "traversal" ;
-                    $("label[for=\"first\"]").text("DFS") ;
-                    $("label[for=\"second\"]").text("BFS") ;
-                    $("#overlay").css("visibility", "visible");
-                }
-                else if (remI == 10) {
-                    state = "shortest" ;
-                    $("label[for=\"first\"]").text("Dejkstra") ;
-                    $("label[for=\"second\"]").text("Ford-Bellman") ;
-                    $("#overlay").css("visibility", "visible");
-                }
-                else {
-                    for (j = 0; j < divsCount; ++j)
-                        divLinks[j].style.zIndex = 0;
-                    divLinks[remI].style.zIndex = 10;
-                    removeDivTables(remI);
-                    if (multipleTables[remI])
-                        for (j = 0; j < divsFunctionList(remI)().length; ++j)
-                            divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)()[j],
-                                needTableNumeration[remI], columnWidths[remI]));
-                    else
-                        divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)(),
-                            needTableNumeration[remI], columnWidths[remI]));
-                }
-            }
-        })();
+
+function multipleTables(itemName) {
+    if( itemName == "vertices-degree" ||
+            itemName == "weakly-connected-components" ||
+            itemname == "strongly-connected-components" ||
+            itemName == "dijkstra" ||
+            itemName == "ford-bellman" ||
+            itemName == "fundamental-cycles" ||
+            itemName == "negative-cycles" ||
+            itemName == "dfs" ||
+            itemName == "bfs" ||
+            itemName == "leafs" ||
+            itemName == "source-vertices" )
+        return true ;
+    return false ;
+}
+
+function verticesWithHeadText(headText) {
+    var vertices = [headText], i ;
+    for( i = 0 ; i < canvasGraph.NODES_COUNT ; ++i )
+        vertices.push("Vertex " + (i+1)) ;
+    return vertices ;
+}
+
+var dropdownFunctions = [
+    dropdown1list,
+    dropdown2list,
+    dropdown3list
+] ;
+
+function needPopup(itemName) {
+    if( itemName == "input" ||
+        itemName == "additional" ||
+        itemName == "reset" )
+        return false ;
+    return true ;
+}
+
+function dropdown1list(itemName) {
+    switch (itemName) {
+        case "connectivity":
+            return [
+                ["Reachability matrix", 0],
+                ["Adjacency matrix", 0],
+                ["Incidence matrix", 0],
+                ["Vertices degree", 0]
+            ] ;
+        case "components":
+            return [
+                ["Weakly connected components", 0],
+                ["Strongly connected components", 0]
+            ] ;
+        case "distances":
+            return [
+                ["Between all vertices", 0],
+                ["From one to all vertices", 1]
+            ] ;
+        case "cycles":
+            return [
+                ["Fundamental cycles", 0],
+                ["Negative cycles", 0]
+            ] ;
+        case "flow":
+            return [
+                ["Minimum flow" , 2],
+                ["Maximum flow", 2]
+            ] ;
+        case "traversal":
+            return [
+                ["DFS", 1],
+                ["BFS", 1]
+            ] ;
+        case "special":
+            return [
+                ["Leafs", 0],
+                ["Source vertices", 0]
+            ] ;
     }
 }
 
-function updateAllFunctions() {
-    for (var i = 0; i < divsCount; ++i)
-        divsFunctionList(i)();
+function dropdown2list(itemName) {
+    switch (itemName) {
+        case "distances":
+            return verticesWithHeadText("Select start vertex:") ;
+        case "flow":
+            return verticesWithHeadText("Select start vertex:") ;
+        case "traversal":
+            return verticesWithHeadText("Select start vertex:") ;
+    }
 }
 
-var state ;
-
-$(".popup-choose").on("click", function() {
-    $("#overlay").css("visibility", "hidden");
-    for (j = 0; j < divsCount; ++j)
-        divLinks[j].style.zIndex = 0;
-    divLinks[8].style.zIndex = 10;
-    removeDivTables(8);
-    var traversalType,
-        startNode = parseInt($("select[name=\"popup-pick\"] option:selected").text()[7]) - 1;
-
-    if (isNaN(startNode))
-        $("#traversal-algo-name").text("You did not pick start vertex");
-    else if( state == "traversal" ) {
-        if ($('input[type=radio][id="first"]:checked').val())
-            traversalType = "DFS";
-        else if ($('input[type=radio][id="second"]:checked').val())
-            traversalType = "BFS";
-        $("#traversal-algo-name").text(traversalType + " traverse order");
-        divContentLinks[8].appendChild(createTable(
-            canvasGraph.getTraversalAlgorithmsInfo(
-                traversalType,
-                parseInt($("select[name=\"popup-pick\"] option:selected").text()[7]) - 1
-            ),
-            needTableNumeration[8], columnWidths[8]
-        ));
-    } else if( state == "shortest" ) {
-
+function dropdown3list(itemName) {
+    switch (itemName) {
+        case "flow":
+            return verticesWithHeadText("Select end vertex:") ;
     }
-}) ;
-
-document.body.getElementsByTagName("li")[divsCount].onclick = function () {
-    canvasGraph.prepareToDisplay();
-};
-
-function createTable(matrix, addIndexes, tdWidth) {
-    var
-        newTable = document.createElement("table"),
-        matrixHeight = matrix.length,
-        newTr, newTd, i, j;
-
-    if (addIndexes) {
-        newTr = document.createElement("tr");
-        newTd = document.createElement("td");
-        newTd.appendChild(document.createTextNode(""));
-        newTr.appendChild(newTd);
-        for (j = 0; j < matrix[0].length; ++j) {
-            newTd = document.createElement("td");
-            newTd.appendChild(document.createTextNode("" + (j + 1)));
-            if(tdWidth && tdWidth[j])
-                newTd.style.width = tdWidth[j] + "px" ;
-            newTr.appendChild(newTd);
-        }
-        newTable.appendChild(newTr);
-    }
-
-    for (i = 0; i < matrixHeight; ++i) {
-        newTr = document.createElement("tr");
-        if (addIndexes) {
-            newTd = document.createElement("td");
-            newTd.appendChild(document.createTextNode("" + (i + 1)));
-            if(tdWidth && tdWidth[j])
-                newTd.style.width = tdWidth[j] + "px" ;
-            newTr.appendChild(newTd);
-        }
-        for (j = 0; j < matrix[i].length; ++j) {
-            newTd = document.createElement("td");
-            newTd.appendChild(document.createTextNode("" + matrix[i][j]));
-            if(tdWidth && tdWidth[j])
-                newTd.style.width = tdWidth[j] + "px" ;
-            newTr.appendChild(newTd);
-        }
-        newTable.appendChild(newTr);
-    }
-
-    return newTable;
 }
 
-(function() {
-    canvasGraph.clear();
-    canvasGraph.init(7);
-    (function () {
-        for (var i = 0; i < 7; ++i)
-            for (var j = 0; j < 7; ++j)
-                if (i != j)
-                    canvasGraph.addEdge(i, j);
-    })();
-    canvasGraph.prepareToDisplay();
-    canvasGraph.updateInfo() ;
-})() ;
-
-$("#settings").on("click", function() {
-
-}) ;
+function handleMenu(itemName) {
+    if( needPopup(itemName) ) {
+        $("#overlay").css("visibility", "visible");
+        $(".choice1").css("visibility", "visible");
+        $(".choice2").css("visibility", "hidden");
+        $(".choice3").css("visibility", "hidden");
+    }
+    else {
+        while (divContentLinks[divIndex].getElementsByTagName("table")[0] != undefined)
+            divContentLinks[divIndex].removeChild(divLinks[divIndex].getElementsByTagName("table")[0]);
+        if (multipleTables[remI])
+            for (j = 0; j < divsFunctionList(remI)().length; ++j)
+                divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)()[j],
+                    needTableNumeration[remI], columnWidths[remI]));
+        else
+            divContentLinks[remI].appendChild(createTable(divsFunctionList(remI)(),
+                needTableNumeration[remI], columnWidths[remI]));
+    }
+}
