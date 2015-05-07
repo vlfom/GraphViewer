@@ -574,9 +574,10 @@ function Graph(NODES_COUNT) {
             var i;
             for (i = 0; i < 7; ++i)
                 cThis.AdditionalInfo[i] = new Array(2);
-            cThis.AdditionalInfo[0][0] = "-";
 
+            cThis.AdditionalInfo[0][0] = "Property";
             cThis.AdditionalInfo[0][1] = "State";
+
             cThis.AdditionalInfo[1][0] = "Weighted";
             cThis.AdditionalInfo[2][0] = "Strongly connected";
             cThis.AdditionalInfo[3][0] = "Weakly connected";
@@ -594,6 +595,8 @@ function Graph(NODES_COUNT) {
             cThis.AdditionalInfo[6][1] = ( checkRegularity(cThis) ? "+" : "-" );
             //cThis.AdditionalInfo[7][1] = "+" ;
             //cThis.AdditionalInfo[8][1] = "+" ;
+
+            cThis.AdditionalInfo = [cThis.AdditionalInfo] ;
         }
         return cThis.AdditionalInfo;
     } ;
@@ -923,7 +926,7 @@ function columnWidths(item0, item1, item2, item3) {
             }
             return [] ;
         case "additional":
-            return [] ;
+            return [150, 50] ;
         default:
             return [] ;
     }
@@ -939,6 +942,7 @@ function verticesWithHeadText(headText) {
 
 function needPopup(itemName) {
     if( itemName == "input-info" ||
+        itemName == "additional" ||
         itemName == "reset" )
         return false ;
     return true ;
@@ -1129,6 +1133,9 @@ function getTableContent(item0, item1, item2, item3) {
                 case "Source vertices" :
                     return canvasGraph.getSourceNodes() ;
             }
+            return ;
+        case "additional":
+            return canvasGraph.getAdditionalInfo() ;
     }
 }
 
@@ -1321,9 +1328,10 @@ function handleMenu(itemName) {
         while (mainContent.getElementsByTagName("table")[0] != undefined)
             mainContent.removeChild(mainContent.getElementsByTagName("table")[0]);
         mainContentDescription.text( getContentDescription(itemName) ) ;
-        for (j = 0; j < getTableContent(itemName).length; ++j)
+        var remTableContent = getTableContent(itemName) ;
+        for (j = 0; j < remTableContent.length; ++j)
             mainContent.appendChild(
-                createTable(getTableContent(itemName)[j],
+                createTable(remTableContent[j],
                 columnWidths(itemName))
             );
     }
@@ -1391,10 +1399,10 @@ $(".popup-confirm").on("click", function() {
     mainContentDescription.text( getContentDescription(item0, item1, item2, item3) ) ;
     if( getAdditionalContentDescription(item0, item1, item2, item3) != null )
         mainAdditionalContentDescription.text(getAdditionalContentDescription(item0, item1, item2, item3)) ;
-    console.log( getTableContent(item0, item1, item2, item3) ) ;
-    for (j = 0; j < getTableContent(item0, item1, item2, item3).length; ++j)
+    var remTableContent = getTableContent(item0, item1, item2, item3) ;
+    for (j = 0; j < remTableContent.length; ++j)
         mainContent.appendChild(
-            createTable(getTableContent(item0, item1, item2, item3)[j],
+            createTable(remTableContent[j],
                 columnWidths(item0, item1, item2, item3))
         );
 }) ;
