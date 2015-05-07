@@ -275,30 +275,50 @@ function Graph(NODES_COUNT) {
     this.getDistanceMatrix = function () {
         if (!cThis.DistanceMatrix) {
             var i, j, k;
-            cThis.DistanceMatrix = new Array(cThis.NODES_COUNT);
-            for (i = 0; i < cThis.NODES_COUNT; ++i)
-                cThis.DistanceMatrix[i] = new Array(cThis.NODES_COUNT);
+            cThis.DistanceMatrix = new Array(cThis.NODES_COUNT+1);
+            for (i = 0; i < cThis.NODES_COUNT+1; ++i)
+                cThis.DistanceMatrix[i] = new Array(cThis.NODES_COUNT+1);
+            for(i = 0 ; i < cThis.NODES_COUNT+1; ++i)
+                cThis.DistanceMatrix[0][i] = cThis.DistanceMatrix[i][0] = i ;
+            cThis.DistanceMatrix[0][0] = "-" ;
             for (i = 0; i < cThis.NODES_COUNT; ++i)
                 for (j = 0; j < cThis.NODES_COUNT; ++j)
-                    cThis.DistanceMatrix[i][j] = -1;
+                    cThis.DistanceMatrix[i+1][j+1] = -1;
             for (i = 0; i < cThis.EDGES_COUNT; ++i)
-                cThis.DistanceMatrix[cThis.EdgeList[i].from][cThis.EdgeList[i].to] = cThis.EdgeList[i].weight;
+                cThis.DistanceMatrix[cThis.EdgeList[i].from+1][cThis.EdgeList[i].to+1] = cThis.EdgeList[i].weight;
 
             for (i = 0; i < cThis.NODES_COUNT; ++i)
-                cThis.DistanceMatrix[i][i] = 0;
+                cThis.DistanceMatrix[i+1][i+1] = 0;
             for (k = 0; k < cThis.NODES_COUNT; ++k)
                 for (i = 0; i < cThis.NODES_COUNT; ++i)
                     for (j = 0; j < cThis.NODES_COUNT; ++j)
-                        if (cThis.DistanceMatrix[i][k] != -1 && cThis.DistanceMatrix[k][j] != -1) {
-                            if (cThis.DistanceMatrix[i][j] == -1)
-                                cThis.DistanceMatrix[i][j] = cThis.DistanceMatrix[i][k] + cThis.DistanceMatrix[k][j];
+                        if (cThis.DistanceMatrix[i+1][k+1] != -1 && cThis.DistanceMatrix[k+1][j+1] != -1) {
+                            if (cThis.DistanceMatrix[i+1][j+1] == -1)
+                                cThis.DistanceMatrix[i+1][j+1] = cThis.DistanceMatrix[i+1][k+1] + cThis.DistanceMatrix[k+1][j+1];
                             else
-                                cThis.DistanceMatrix[i][j] = Math.min(cThis.DistanceMatrix[i][j], cThis.DistanceMatrix[i][k] + cThis.DistanceMatrix[k][j]);
+                                cThis.DistanceMatrix[i+1][j+1] = Math.min(cThis.DistanceMatrix[i+1][j+1], cThis.DistanceMatrix[i+1][k+1] + cThis.DistanceMatrix[k+1][j+1]);
                         }
 
             cThis.DistanceMatrix = [cThis.DistanceMatrix] ;
         }
         return cThis.DistanceMatrix;
+    };
+
+    this.ReachabilityMatrix = null;
+    this.getReachabilityMatrix = function () {
+        if (!cThis.ReachabilityMatrix) {
+            var i, j ;
+
+            cThis.ReachabilityMatrix = cThis.getDistanceMatrix()[0] ;
+
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                for (j = 0; j < cThis.NODES_COUNT; ++j)
+                    if( cThis.ReachabilityMatrix[i+1][j+1] > 0 )
+                        cThis.ReachabilityMatrix[i+1][j+1] = 1 ;
+
+            cThis.ReachabilityMatrix = [cThis.ReachabilityMatrix] ;
+        }
+        return cThis.ReachabilityMatrix;
     };
 
     this.FormattedEdgesList = null;
@@ -334,21 +354,21 @@ function Graph(NODES_COUNT) {
     this.getAdjacencyMatrix = function () {
         if (!cThis.AdjacencyMatrix) {
             var i, j;
-            cThis.AdjacencyMatrix = new Array(1) ;
-            cThis.AdjacencyMatrix[0] = new Array(cThis.NODES_COUNT+1);
+            cThis.AdjacencyMatrix = new Array(cThis.NODES_COUNT+1);
             for (i = 0; i < cThis.NODES_COUNT+1; ++i)
-                cThis.AdjacencyMatrix[0][i] = new Array(cThis.NODES_COUNT+1);
+                cThis.AdjacencyMatrix[i] = new Array(cThis.NODES_COUNT+1);
             for(i = 0 ; i < cThis.NODES_COUNT+1; ++i)
-                cThis.AdjacencyMatrix[0][i][0] = cThis.AdjacencyMatrix[0][0][i] = i ;
-            cThis.AdjacencyMatrix[0][0][0] = "-" ;
+                cThis.AdjacencyMatrix[i][0] = cThis.AdjacencyMatrix[0][i] = i ;
+            cThis.AdjacencyMatrix[0][0] = "-" ;
             for (i = 0; i < cThis.NODES_COUNT; ++i)
                 for (j = 0; j < cThis.NODES_COUNT; ++j)
-                    cThis.AdjacencyMatrix[0][i+1][j+1] = 0;
+                    cThis.AdjacencyMatrix[i+1][j+1] = 0;
             for (i = 0; i < cThis.NODES_COUNT; ++i)
                 for (j = 0; j < cThis.NodeList[i].edges_list.length; ++j)
-                    cThis.AdjacencyMatrix[0][i+1][cThis.NodeList[i].edges_list[j]+1] = 1;
+                    cThis.AdjacencyMatrix[i+1][cThis.NodeList[i].edges_list[j]+1] = 1;
             for (i = 0; i < cThis.NODES_COUNT; ++i)
-                cThis.AdjacencyMatrix[0][i+1][i+1] = 1;
+                cThis.AdjacencyMatrix[i+1][i+1] = 1;
+            cThis.AdjacencyMatrix = [cThis.AdjacencyMatrix] ;
         }
         return cThis.AdjacencyMatrix;
     };
@@ -357,19 +377,24 @@ function Graph(NODES_COUNT) {
     this.getIncidenceMatrix = function () {
         if (!cThis.IncidenceMatrix) {
             var i, j;
-            cThis.IncidenceMatrix = new Array(cThis.NODES_COUNT);
-            for (i = 0; i < cThis.NODES_COUNT; ++i)
-                cThis.IncidenceMatrix[i] = new Array(cThis.EDGES_COUNT);
+            cThis.IncidenceMatrix = new Array(cThis.NODES_COUNT+1);
+            for (i = 0; i < cThis.NODES_COUNT+1; ++i)
+                cThis.IncidenceMatrix[i] = new Array(cThis.EDGES_COUNT+1);
+            for(i = 0 ; i < cThis.EDGES_COUNT+1; ++i)
+                cThis.IncidenceMatrix[0][i] = i ;
+            for(i = 0 ; i < cThis.NODES_COUNT+1; ++i)
+                cThis.IncidenceMatrix[i][0] = i ;
+            cThis.IncidenceMatrix[0][0] = "-" ;
             for (i = 0; i < cThis.NODES_COUNT; ++i)
                 for (j = 0; j < cThis.EDGES_COUNT; ++j)
                     if (cThis.EdgeList[j].from == i && cThis.EdgeList[j].to == i)
-                        cThis.IncidenceMatrix[i][j] = "L";
+                        cThis.IncidenceMatrix[i+1][j+1] = "L";
                     else if (cThis.EdgeList[j].from == i)
-                        cThis.IncidenceMatrix[i][j] = -1;
+                        cThis.IncidenceMatrix[i+1][j+1] = -1;
                     else if (cThis.EdgeList[j].to == i)
-                        cThis.IncidenceMatrix[i][j] = 1;
+                        cThis.IncidenceMatrix[i+1][j+1] = 1;
                     else
-                        cThis.IncidenceMatrix[i][j] = 0;
+                        cThis.IncidenceMatrix[i+1][j+1] = 0;
             cThis.IncidenceMatrix = [cThis.IncidenceMatrix] ;
         }
         return cThis.IncidenceMatrix;
@@ -414,6 +439,8 @@ function Graph(NODES_COUNT) {
                 for (j = 1; j < cThis.SourceNodes[i].length; ++j)
                     cThis.SourceNodes[i][j] = [allIsolated[j - 1], 0];
             }
+            if( allIsolated.length == 0 )
+                cThis.SourceNodes = [["-"]] ;
         }
         return cThis.SourceNodes;
     };
@@ -437,6 +464,8 @@ function Graph(NODES_COUNT) {
                 for (j = 1; j < cThis.SinkNodes[i].length; ++j)
                     cThis.SinkNodes[i][j] = [allLeafs[j - 1], 0];
             }
+            if( allIsolated.length == 0 )
+                cThis.SourceNodes = [["-"]] ;
         }
         return cThis.SinkNodes;
     };
@@ -459,6 +488,7 @@ function Graph(NODES_COUNT) {
                 for (j = getCycles[i - 1].length + 1; j <= maxWidth; ++j)
                     cThis.FundamentalCycles[i][j] = "-";
             }
+            cThis.FundamentalCycles = [cThis.FundamentalCycles] ;
         }
         return cThis.FundamentalCycles;
     };
@@ -661,6 +691,8 @@ function readFile(evt) {
 
             canvasGraph.prepareToDisplay();
             canvasGraph.updateInfo() ;
+
+            handleMenu("input-info") ;
         };
 
         r.readAsText(f);
@@ -919,7 +951,7 @@ function columnWidths(item0, item1, item2, item3) {
             return [] ;
         case "special":
             switch(item1) {
-                case "Leafs" :
+                case "Leaf vertices" :
                     return [] ;
                 case "Source vertices" :
                     return [] ;
@@ -938,14 +970,6 @@ function verticesWithHeadText(headText) {
     for( i = 0 ; i < canvasGraph.NODES_COUNT ; ++i )
         vertices.push("Vertex " + (i+1)) ;
     return vertices ;
-}
-
-function needPopup(itemName) {
-    if( itemName == "input-info" ||
-        itemName == "additional" ||
-        itemName == "reset" )
-        return false ;
-    return true ;
 }
 
 function dropdown1list(itemName) {
@@ -985,7 +1009,7 @@ function dropdown1list(itemName) {
             ] ;
         case "special":
             return [
-                ["Leafs", 0],
+                ["Leaf vertices", 0],
                 ["Source vertices", 0]
             ] ;
     }
@@ -1047,8 +1071,7 @@ function getTableContent(item0, item1, item2, item3) {
         case "connectivity" :
             switch(item1) {
                 case "Reachability matrix" :
-                    //TODO
-                    return canvasGraph.getDistanceMatrix() ;
+                    return canvasGraph.getReachabilityMatrix() ;
                 case "Adjacency matrix" :
                     return canvasGraph.getAdjacencyMatrix() ;
                 case "Incidence matrix" :
@@ -1128,7 +1151,7 @@ function getTableContent(item0, item1, item2, item3) {
             return;
         case "special":
             switch(item1) {
-                case "Leafs" :
+                case "Leaf vertices" :
                     return canvasGraph.getSinkNodes() ;
                 case "Source vertices" :
                     return canvasGraph.getSourceNodes() ;
@@ -1204,7 +1227,7 @@ function getContentDescription(item0, item1, item2, item3) {
             return;
         case "special":
             switch(item1) {
-                case "Leafs" :
+                case "Leaf vertices" :
                     return "List of leaf vertices" ;
                 case "Source vertices" :
                     return "List of source vertices" ;
@@ -1298,6 +1321,29 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
     }
 }
 
+function needPopup(itemName) {
+    if( itemName == "input-info" ||
+        itemName == "additional" ||
+        itemName == "reset" )
+        return false ;
+    return true ;
+}
+
+function functionalOption(itemName) {
+    if( itemName == "reset" )
+        return true ;
+    return false ;
+}
+
+function functionalOptionFunction(itemName) {
+    switch( itemName ) {
+        case "reset":
+            return canvasGraph.prepareToDisplay() ;
+        default:
+            return null ;
+    }
+}
+
 var mainContent = document.getElementsByClassName("content")[0] ;
 var mainContentDescription = $(".content-description"),
     mainAdditionalContentDescription = $(".additional-content-description") ;
@@ -1305,7 +1351,9 @@ var mainContentDescription = $(".content-description"),
 var dropdownList1, dropdownList2, dropdownList3, dropdownsCount, item0, item1, item2, item3 ;
 function handleMenu(itemName) {
     item0 = itemName ;
-    if( needPopup(itemName) ) {
+    if( functionalOption(itemName) )
+        functionalOptionFunction(itemName) ;
+    else if( needPopup(itemName) ) {
         $("#overlay").css("visibility", "visible");
         $(".choice1").css("display", "block");
         $(".choice2").css("display", "none");
