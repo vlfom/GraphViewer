@@ -275,6 +275,7 @@ function Graph(NODES_COUNT) {
     this.getDistanceMatrix = function () {
         if (!cThis.DistanceMatrix) {
             var i, j, k;
+            var INFINITY = Math.pow(10,9) ;
             cThis.DistanceMatrix = new Array(cThis.NODES_COUNT+1);
             for (i = 0; i < cThis.NODES_COUNT+1; ++i)
                 cThis.DistanceMatrix[i] = new Array(cThis.NODES_COUNT+1);
@@ -283,7 +284,7 @@ function Graph(NODES_COUNT) {
             cThis.DistanceMatrix[0][0] = "-" ;
             for (i = 0; i < cThis.NODES_COUNT; ++i)
                 for (j = 0; j < cThis.NODES_COUNT; ++j)
-                    cThis.DistanceMatrix[i+1][j+1] = -1;
+                    cThis.DistanceMatrix[i+1][j+1] = INFINITY;
             for (i = 0; i < cThis.EDGES_COUNT; ++i)
                 cThis.DistanceMatrix[cThis.EdgeList[i].from+1][cThis.EdgeList[i].to+1] = cThis.EdgeList[i].weight;
 
@@ -292,12 +293,20 @@ function Graph(NODES_COUNT) {
             for (k = 0; k < cThis.NODES_COUNT; ++k)
                 for (i = 0; i < cThis.NODES_COUNT; ++i)
                     for (j = 0; j < cThis.NODES_COUNT; ++j)
-                        if (cThis.DistanceMatrix[i+1][k+1] != -1 && cThis.DistanceMatrix[k+1][j+1] != -1) {
-                            if (cThis.DistanceMatrix[i+1][j+1] == -1)
-                                cThis.DistanceMatrix[i+1][j+1] = cThis.DistanceMatrix[i+1][k+1] + cThis.DistanceMatrix[k+1][j+1];
-                            else
-                                cThis.DistanceMatrix[i+1][j+1] = Math.min(cThis.DistanceMatrix[i+1][j+1], cThis.DistanceMatrix[i+1][k+1] + cThis.DistanceMatrix[k+1][j+1]);
+                        cThis.DistanceMatrix[i+1][j+1] = Math.min(cThis.DistanceMatrix[i+1][j+1], cThis.DistanceMatrix[i+1][k+1] + cThis.DistanceMatrix[k+1][j+1]);
+
+            for (k = 0; k < cThis.NODES_COUNT; ++k)
+                for (i = 0; i < cThis.NODES_COUNT; ++i)
+                    for (j = 0; j < cThis.NODES_COUNT; ++j)
+                        if ( cThis.DistanceMatrix[i+1][j+1] > cThis.DistanceMatrix[i+1][k+1] + cThis.DistanceMatrix[k+1][j+1] ) {
+                            cThis.DistanceMatrix = [[["The graph contains negative cycle"]]];
+                            return cThis.DistanceMatrix;
                         }
+
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                for (j = 0; j < cThis.NODES_COUNT; ++j)
+                    if( cThis.DistanceMatrix[i+1][j+1] == INFINITY )
+                        cThis.DistanceMatrix[i+1][j+1] = -1 ;
 
             cThis.DistanceMatrix = [cThis.DistanceMatrix] ;
         }
@@ -585,6 +594,88 @@ function Graph(NODES_COUNT) {
         return cThis.TopologicalSort ;
     };
 
+    this.DistanceFromOneVertexByDijkstra = null ;
+    this.getDistanceFromOneVertexByDijkstra = function(startVertex) {
+        var visited = new Array(cThis.NODES_COUNT),
+            distance = new Array(cThis.NODES_COUNT),
+            INFINITY = Math.pow(10, 9),
+            visitOrder = [],
+            displayMatrix = new Array(2),
+            i, j,
+            cur, curdist, curvertex;
+        for (i = 0; i < cThis.NODES_COUNT; ++i) {
+            distance[i] = INFINITY;
+            visited[i] = false;
+        }
+        distance[startVertex] = 0;
+        for (j = 0; j < cThis.NODES_COUNT; ++j) {
+            curdist = INFINITY;
+            curvertex = -1;
+            for (i = 0; i < cThis.NODES_COUNT; ++i)
+                if (!visited[i] && distance[i] < curdist) {
+                    curvertex = i;
+                    curdist = distance[i];
+                }
+            if (curvertex == -1)
+                break;
+            visited[curvertex] = true;
+            visitOrder.push(curvertex);
+            for (i = 0; i < cThis.NodeList[curvertex].edges_list.length; ++i) {
+                nextVertex = cThis.NodeList[curvertex].edges_list[i];
+                if (!visited[nextVertex] && distance[nextVertex] > distance[curvertex] + cThis.NodeList[curvertex].edges_weight[i])
+                    distance[nextVertex] = distance[curvertex] + cThis.NodeList[curvertex].edges_weight[i];
+            }
+        }
+        displayMatrix[0] = [];
+        displayMatrix[1] = [];
+        displayMatrix[0].push(["Order", "Vertex"]);
+        for (i = 0; i < visitOrder.length; ++i)
+            displayMatrix[0].push([i + 1, visitOrder[i] + 1]);
+        displayMatrix[1].push(["Vertex", "Distance"]);
+        for (i = 0; i < cThis.NODES_COUNT; ++i) {
+            if (distance[i] == INFINITY)
+                distance[i] = -1;
+            displayMatrix[1].push([i + 1, distance[i]]);
+        }
+        this.DistanceFromOneVertexByDijkstra = displayMatrix;
+        return this.DistanceFromOneVertexByDijkstra;
+    }
+
+    this.DistanceFromOneVertexByFordBellman = null ;
+    this.getDistanceFromOneVertexByFordBellman = function(startVertex) {
+        var distance = new Array(cThis.NODES_COUNT),
+            INFINITY = Math.pow(10, 9),
+            displayMatrix = new Array(1),
+            i, j, a, b, c ;
+        for( i = 0 ; i < cThis.NODES_COUNT ; ++i )
+            distance[i] = INFINITY;
+        distance[startVertex] = 0 ;
+        for( j = 0 ; j < cThis.NODES_COUNT ; ++j)
+            for( i = 0 ; i < cThis.EdgeList.length ; ++i ) {
+                a = cThis.EdgeList[i].from ;
+                b = cThis.EdgeList[i].to ;
+                c = cThis.EdgeList[i].weight ;
+                if( distance[b] > distance[a] + c )
+                    distance[b] = distance[a] + c ;
+            }
+        for( i = 0 ; i < cThis.EdgeList.length ; ++i ) {
+            a = cThis.EdgeList[i].from ;
+            b = cThis.EdgeList[i].to ;
+            c = cThis.EdgeList[i].weight ;
+            if( distance[b] > distance[a] + c )
+                return [[["The graph contains negative cycle"]]] ;
+        }
+        displayMatrix[0] = [] ;
+        displayMatrix[0].push( ["Vertex", "Distance"] ) ;
+        for( i = 0 ; i < cThis.NODES_COUNT ; ++i ) {
+            if( distance[i] == INFINITY )
+                distance[i] = -1 ;
+            displayMatrix[0].push([i + 1, distance[i]]);
+        }
+        this.DistanceFromOneVertexByFordBellman = displayMatrix ;
+        return this.DistanceFromOneVertexByFordBellman ;
+    }
+
     this.AdditionalInfo = null;
     this.getAdditionalInfo = function () {
         if (!cThis.AdditionalInfo) {
@@ -828,7 +919,11 @@ canvas.drawArrow = function (point1, point2, value, context) {
             context.stroke();
             context.fillStyle = "black";
             context.font = "14px Consolas";
-            var numberLength = Math.floor(Math.log(value) / Math.log(10) + 1e-5);
+            var numberLength ;
+            if( value >= 0 )
+                numberLength = Math.floor(Math.log(value) / Math.log(10) + 1e-5);
+            else
+                numberLength = Math.floor(Math.log(-value) / Math.log(10) + 1e-5) + 1;
             context.fillText(value + "", pc.x - 3 * numberLength - 4, pc.y + 4);
         }
         angleLeft = lineAngle - Math.PI / 6;
@@ -921,7 +1016,7 @@ function columnWidths(item0, item1, item2, item3) {
                 case "Between all vertices" :
                     return [] ;
                 case "From one to all vertices" :
-                    return [] ;
+                    return [60, 60] ;
             }
             return;
         case "cycles":
@@ -1019,7 +1114,8 @@ function dropdown2list(itemName) {
     switch (itemName) {
         case "Between all vertices":
             return [
-                "Floyd-Warshall algorithm"
+                "Floyd-Warshall algorithm",
+                "Johnson's algorithm"
             ] ;
         case "From one to all vertices":
             return [
@@ -1095,17 +1191,17 @@ function getTableContent(item0, item1, item2, item3) {
                     switch(item2) {
                         case "Floyd-Warshall algorithm":
                             return canvasGraph.getDistanceMatrix() ;
+                        case "Johnson's algorithm":
+                            return canvasGraph.getDistanceMatrix() ;
                     }
                 return ;
                 case "From one to all vertices" :
                     vertexStart = parseInt(item3.substring(7, item3.length)) - 1 ;
                     switch(item2) {
                         case "Dijkstra algorithm":
-                            //TODO
-                            return canvasGraph.getDistanceMatrix() ;
+                            return canvasGraph.getDistanceFromOneVertexByDijkstra(vertexStart) ;
                         case "Ford-Bellman algorithm":
-                            //TODO
-                            return canvasGraph.getDistanceMatrix() ;
+                            return canvasGraph.getDistanceFromOneVertexByFordBellman(vertexStart) ;
                     }
                     return ;
             }
@@ -1268,6 +1364,8 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
                     switch(item2) {
                         case "Floyd-Warshall algorithm":
                             return "using Floyd-Warshall algorithm" ;
+                        case "Johnson's algorithm":
+                            return "using Johnson's algorithm" ;
                     }
                     return null;
                 case "From one to all vertices" :
@@ -1448,11 +1546,12 @@ $(".popup-confirm").on("click", function() {
     if( getAdditionalContentDescription(item0, item1, item2, item3) != null )
         mainAdditionalContentDescription.text(getAdditionalContentDescription(item0, item1, item2, item3)) ;
     var remTableContent = getTableContent(item0, item1, item2, item3) ;
-    for (j = 0; j < remTableContent.length; ++j)
+    for (j = 0; j < remTableContent.length; ++j) {
         mainContent.appendChild(
             createTable(remTableContent[j],
                 columnWidths(item0, item1, item2, item3))
         );
+    }
 }) ;
 
 $(".popup-decline").on("click", function() {
@@ -1477,5 +1576,4 @@ $(".popup-decline").on("click", function() {
 })() ;
 
 $("#settings").on("click", function() {
-
 }) ;
