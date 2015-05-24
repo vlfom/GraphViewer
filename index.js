@@ -269,6 +269,11 @@ function Graph(NODES_COUNT) {
         cThis.FundamentalCycles = null;
         cThis.TopologicalSort = null;
         cThis.AdditionalInfo = null;
+        cThis.EulerCycle = null;
+        cThis.EulerPath = null;
+        cThis.HamiltonCycle = null;
+        cThis.HamiltonPath = null;
+        cThis.SalesmanProblem = null;
     };
 
     this.DistanceMatrix = null;
@@ -639,7 +644,7 @@ function Graph(NODES_COUNT) {
         }
         this.DistanceFromOneVertexByDijkstra = displayMatrix;
         return this.DistanceFromOneVertexByDijkstra;
-    }
+    };
 
     this.DistanceFromOneVertexByFordBellman = null ;
     this.getDistanceFromOneVertexByFordBellman = function(startVertex) {
@@ -674,7 +679,283 @@ function Graph(NODES_COUNT) {
         }
         this.DistanceFromOneVertexByFordBellman = displayMatrix ;
         return this.DistanceFromOneVertexByFordBellman ;
-    }
+    };
+
+    this.EulerCycle = null ;
+    this.getEulerCycle = function() {
+        if( !cThis.EulerCycle ) {
+            var i, v, n, f, c, b ;
+            {
+                for (i = 0; i < cThis.NodeList.length; ++i)
+                    if (cThis.NodeList[i].inDegree != cThis.NodeList[i].outDegree) {
+                        cThis.EulerCycle = [["Graph does not contain Euler cycle"]];
+                        break;
+                    }
+                if( !cThis.EulerCycle ) {
+                    var vis = [], path = [["Order", "Vertex"]];
+                    for (i = 0; i < cThis.NODES_COUNT; ++i)
+                        vis[i] = false;
+                    c = 0;
+                    b = 0;
+                    while (true) {
+                        for (i = 0; i < cThis.NodeList.length; ++i)
+                            if (!vis[i]) {
+                                v = i;
+                                break;
+                            }
+                        if (i == cThis.NodeList.length)
+                            break;
+                        if (cThis.NodeList[v].edges_list.length > 0)
+                            ++b;
+                        while (true) {
+                            f = false;
+                            vis[v] = true;
+                            ++c;
+                            path.push([c, v + 1]);
+                            for (i = 0; i < cThis.NodeList[v].edges_list.length; ++i) {
+                                n = cThis.NodeList[v].edges_list[i];
+                                if (!vis[n]) {
+                                    v = n;
+                                    f = true;
+                                    break;
+                                }
+                            }
+                            if (!f)
+                                break;
+                        }
+                    }
+                    cThis.EulerCycle = path;
+                    if (b > 1)
+                        cThis.EulerCycle = [["Graph does not contain Euler cycle"]];
+                }
+            }
+            cThis.EulerCycle = [cThis.EulerCycle] ;
+        }
+        return cThis.EulerCycle ;
+    };
+
+    this.EulerPath = null ;
+    this.getEulerPath = function() {
+        if( !cThis.EulerPath ) {
+            var i, v, n, f, c, b, x, y ;
+            {
+                x = y = 0 ;
+                for (i = 0; i < cThis.NodeList.length; ++i)
+                    if (cThis.NodeList[i].inDegree != cThis.NodeList[i].outDegree) {
+                        if( cThis.NodeList[i].inDegree < cThis.NodeList[i].outDegree ) {
+                            if( x ) {
+                                cThis.EulerPath = [["Graph does not contain Euler path"]];
+                                break;
+                            }
+                            x = i ;
+                        }
+                        else {
+                            if( y ) {
+                                cThis.EulerPath = [["Graph does not contain Euler path"]];
+                                break;
+                            }
+                            y = i ;
+                        }
+                    }
+                if( !cThis.EulerPath ) {
+                    var vis = [], path = [["Order", "Vertex"]];
+                    for (i = 0; i < cThis.NODES_COUNT; ++i)
+                        vis[i] = false;
+                    c = 0;
+                    v = x ;
+                    var ff ;
+                    while (true) {
+                        f = false;
+                        vis[v] = true;
+                        ++c;
+                        path.push([c, v + 1]);
+                        ff = 0 ;
+                        for (i = 0; i < cThis.NodeList[v].edges_list.length; ++i) {
+                            n = cThis.NodeList[v].edges_list[i];
+                            if (!vis[n] && n != y) {
+                                v = n;
+                                ff = 1 ;
+                                f = true;
+                                break;
+                            }
+                        }
+                        if( !ff ) {
+                            for (i = 0; i < cThis.NodeList[v].edges_list.length; ++i) {
+                                n = cThis.NodeList[v].edges_list[i];
+                                if (!vis[n]) {
+                                    v = n;
+                                    ff = 1 ;
+                                    f = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!f)
+                            break;
+                    }
+                    cThis.EulerPath = path;
+                    for (i = 0; i < cThis.NODES_COUNT; ++i)
+                        if( !vis[i] && (cThis.NodeList[v].inDegree > 0 || cThis.NodeList[v].outDegree > 0) ) {
+                            cThis.EulerPath = [["Graph does not contain Euler path"]];
+                            break;
+                        }
+                }
+            }
+            cThis.EulerPath = [cThis.EulerPath] ;
+        }
+        return cThis.EulerPath ;
+    };
+
+    this.HamiltonCycle = null ;
+    this.getHamiltonCycle = function() {
+        if( !cThis.HamiltonCycle ) {
+            if( FundamentalCycleList(cThis).length > 1 ) {
+                cThis.HamiltonCycle = [[["Graph does not contain Hamilton cycle"]]];
+                return cThis.HamiltonCycle ;
+            }
+
+            var order = [], vis = [], to_sort, i, j, k, v ;
+            for( i = 0 ; i < cThis.NODES_COUNT ; ++i )
+                order[i] = i ;
+            do {
+                for( i = cThis.NODES_COUNT - 1 ; i > 0 ; --i )
+                    if( order[i-1] < order[i] )
+                        break ;
+                if( i == 0 )
+                    break ;
+                to_sort = [] ;
+                for( j = i-1 ; j < cThis.NODES_COUNT ; ++j )
+                    to_sort.push(order[j]) ;
+                k = i-1 ;
+                for( i = 0 ; i < to_sort.length ; ++i )
+                    for( j = i+1 ; j < to_sort.length ; ++j )
+                        if( to_sort[j] < to_sort[i] ) {
+                            to_sort[j] ^= to_sort[i] ;
+                            to_sort[i] ^= to_sort[j] ;
+                            to_sort[j] ^= to_sort[i] ;
+                        }
+                for( i = 0 ; i < to_sort.length ; ++i )
+                    if( to_sort[i] > order[k] )
+                        break ;
+                order[k] = to_sort[i] ;
+                j = 0 ;
+                for( i = k+1 ; i < cThis.NODES_COUNT ; ++i ) {
+                    if( to_sort[j] == order[k] )
+                        ++j ;
+                    order[i] = to_sort[j] ;
+                    ++j ;
+                }
+
+                var reach ;
+                for( i = 0 ; i < cThis.NODES_COUNT-1 ; ++i ) {
+                    reach = false ;
+                    for( j = 0 ; j < cThis.NodeList[order[i]].edges_list.length ; ++j )
+                        if( cThis.NodeList[order[i]].edges_list[j] == order[i+1] ) {
+                            reach = true ;
+                            break ;
+                        }
+                    if( !reach )
+                        break ;
+                }
+
+                if( i == cThis.NODES_COUNT-1 ) {
+                    reach = false ;
+                    for( j = 0 ; j < cThis.NodeList[order[i]].edges_list.length ; ++j )
+                        if( cThis.NodeList[order[i]].edges_list[j] == order[0] ) {
+                            reach = true ;
+                            break ;
+                        }
+
+                    if( reach ) {
+                        var order2 = [];
+                        order2[0] = ["Order", "Vertex"];
+                        for (i = 0; i < cThis.NODES_COUNT; ++i)
+                            order2[i + 1] = [i + 1, order[i] + 1];
+                        order2[i+1] = [i+1, order[0]+1] ;
+                        cThis.HamiltonCycle = [order2];
+                        return cThis.HamiltonCycle;
+                    }
+                }
+
+            }while(true) ;
+
+            cThis.HamiltonCycle = [[["Graph does not contain Hamilton cycle"]]];
+        }
+        return cThis.HamiltonCycle ;
+    };
+
+    this.HamiltonPath = null ;
+    this.getHamiltonPath = function() {
+        if( !cThis.HamiltonPath ) {
+            if( FundamentalCycleList(cThis).length > 1 ) {
+                cThis.HamiltonPath = [[["Graph does not contain Hamilton path"]]];
+                return cThis.HamiltonPath ;
+            }
+
+            var order = [], vis = [], to_sort, i, j, k, v ;
+            for( i = 0 ; i < cThis.NODES_COUNT ; ++i )
+                order[i] = i ;
+            do {
+                for( i = cThis.NODES_COUNT - 1 ; i > 0 ; --i )
+                    if( order[i-1] < order[i] )
+                        break ;
+                if( i == 0 )
+                    break ;
+                to_sort = [] ;
+                for( j = i-1 ; j < cThis.NODES_COUNT ; ++j )
+                    to_sort.push(order[j]) ;
+                k = i-1 ;
+                for( i = 0 ; i < to_sort.length ; ++i )
+                    for( j = i+1 ; j < to_sort.length ; ++j )
+                        if( to_sort[j] < to_sort[i] ) {
+                            to_sort[j] ^= to_sort[i] ;
+                            to_sort[i] ^= to_sort[j] ;
+                            to_sort[j] ^= to_sort[i] ;
+                        }
+                for( i = 0 ; i < to_sort.length ; ++i )
+                    if( to_sort[i] > order[k] )
+                        break ;
+                order[k] = to_sort[i] ;
+                j = 0 ;
+                for( i = k+1 ; i < cThis.NODES_COUNT ; ++i ) {
+                    if( to_sort[j] == order[k] )
+                        ++j ;
+                    order[i] = to_sort[j] ;
+                    ++j ;
+                }
+
+                var reach ;
+                for( i = 0 ; i < cThis.NODES_COUNT-1 ; ++i ) {
+                    reach = false ;
+                    for( j = 0 ; j < cThis.NodeList[order[i]].edges_list.length ; ++j )
+                        if( cThis.NodeList[order[i]].edges_list[j] == order[i+1] ) {
+                            reach = true ;
+                            break ;
+                        }
+                    if( !reach )
+                        break ;
+                }
+
+                if( i == cThis.NODES_COUNT-1 ) {
+                    var order2 = [] ;
+                    order2[0] = [ "Order", "Vertex" ] ;
+                    for( i = 0 ; i < cThis.NODES_COUNT ; ++i )
+                        order2[i+1] = [i+1, order[i]+1] ;
+                    cThis.HamiltonPath = [order2] ;
+                    return cThis.HamiltonPath ;
+                }
+
+            }while(true) ;
+
+            cThis.HamiltonPath = [[["Graph does not contain Hamilton path"]]];
+        }
+        return cThis.HamiltonPath ;
+    };
+
+    this.SalesmanProblem = null ;
+    this.getSalesmanProblem = function() {
+        return [] ;
+    };
 
     this.AdditionalInfo = null;
     this.getAdditionalInfo = function () {
@@ -1017,6 +1298,8 @@ function columnWidths(item0, item1, item2, item3) {
                     return [] ;
                 case "From one to all vertices" :
                     return [60, 60] ;
+                case "Salesman problem" :
+                    return [100, 100] ;
             }
             return;
         case "cycles":
@@ -1025,6 +1308,14 @@ function columnWidths(item0, item1, item2, item3) {
                     return [] ;
                 case "Negative cycles" :
                     return [] ;
+                case "Euler cycle" :
+                    return [100, 50] ;
+                case "Euler path" :
+                    return [100, 50] ;
+                case "Hamilton cycle" :
+                    return [100, 50] ;
+                case "Hamilton path" :
+                    return [100, 50] ;
             }
             return;
         case "flow":
@@ -1084,12 +1375,17 @@ function dropdown1list(itemName) {
         case "distances":
             return [
                 ["Between all vertices", 1],
-                ["From one to all vertices", 2]
+                ["From one to all vertices", 2],
+                ["Salesman problem", 0]
             ] ;
         case "cycles":
             return [
                 ["Fundamental cycles", 0],
-                ["Negative cycles", 0]
+                ["Negative cycles", 0],
+                ["Euler cycle", 0],
+                ["Euler path", 0],
+                ["Hamilton cycle", 0],
+                ["Hamilton path", 0]
             ] ;
         case "flow":
             return [
@@ -1193,6 +1489,8 @@ function getTableContent(item0, item1, item2, item3) {
                             return canvasGraph.getDistanceMatrix() ;
                         case "Johnson's algorithm":
                             return canvasGraph.getDistanceMatrix() ;
+                        case "Salesman problem":
+                            return canvasGraph.getSalesmanProblem() ;
                     }
                 return ;
                 case "From one to all vertices" :
@@ -1214,6 +1512,14 @@ function getTableContent(item0, item1, item2, item3) {
                 case "Negative cycles" :
                     //TODO
                     return canvasGraph.getFundamentalCycles() ;
+                case "Euler cycle" :
+                    return canvasGraph.getEulerCycle() ;
+                case "Euler path" :
+                    return canvasGraph.getEulerPath() ;
+                case "Hamilton cycle" :
+                    return canvasGraph.getHamiltonCycle() ;
+                case "Hamilton path" :
+                    return canvasGraph.getHamiltonPath() ;
             }
             return;
         case "flow":
@@ -1299,6 +1605,10 @@ function getContentDescription(item0, item1, item2, item3) {
                     return "Fundamental cycles list" ;
                 case "Negative cycles" :
                     return "Negative cycles list" ;
+                case "Euler cycle" :
+                    return "Euler cycle" ;
+                case "Euler path" :
+                    return "Euler path" ;
             }
             return;
         case "flow":
@@ -1384,6 +1694,10 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
                 case "Fundamental cycles" :
                     return null ;
                 case "Negative cycles" :
+                    return null ;
+                case "Euler cycle" :
+                    return null ;
+                case "Euler path" :
                     return null ;
             }
             return null;
