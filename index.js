@@ -954,7 +954,99 @@ function Graph(NODES_COUNT) {
 
     this.SalesmanProblem = null ;
     this.getSalesmanProblem = function() {
-        return [] ;
+        if( !cThis.SalesmanProblem ) {
+            if( FundamentalCycleList(cThis).length > 1 ) {
+                cThis.SalesmanProblem = [[["Graph does not contain any Hamilton cycle"]]];
+                return cThis.SalesmanProblem ;
+            }
+
+            var order = [], vis = [], to_sort, i, j, k, v, len, minlen = 1e9, order_rem = [] ;
+            for( i = 0 ; i < cThis.NODES_COUNT ; ++i )
+                order[i] = i ;
+            do {
+                for( i = cThis.NODES_COUNT - 1 ; i > 0 ; --i )
+                    if( order[i-1] < order[i] )
+                        break ;
+                if( i == 0 )
+                    break ;
+                to_sort = [] ;
+                for( j = i-1 ; j < cThis.NODES_COUNT ; ++j )
+                    to_sort.push(order[j]) ;
+                k = i-1 ;
+                for( i = 0 ; i < to_sort.length ; ++i )
+                    for( j = i+1 ; j < to_sort.length ; ++j )
+                        if( to_sort[j] < to_sort[i] ) {
+                            to_sort[j] ^= to_sort[i] ;
+                            to_sort[i] ^= to_sort[j] ;
+                            to_sort[j] ^= to_sort[i] ;
+                        }
+                for( i = 0 ; i < to_sort.length ; ++i )
+                    if( to_sort[i] > order[k] )
+                        break ;
+                order[k] = to_sort[i] ;
+                j = 0 ;
+                for( i = k+1 ; i < cThis.NODES_COUNT ; ++i ) {
+                    if( to_sort[j] == order[k] )
+                        ++j ;
+                    order[i] = to_sort[j] ;
+                    ++j ;
+                }
+
+                var reach ;
+                for( i = 0 ; i < cThis.NODES_COUNT-1 ; ++i ) {
+                    reach = false ;
+                    for( j = 0 ; j < cThis.NodeList[order[i]].edges_list.length ; ++j )
+                        if( cThis.NodeList[order[i]].edges_list[j] == order[i+1] ) {
+                            reach = true ;
+                            break ;
+                        }
+                    if( !reach )
+                        break ;
+                }
+
+                if( i == cThis.NODES_COUNT-1 ) {
+                    reach = false ;
+                    for( j = 0 ; j < cThis.NodeList[order[i]].edges_list.length ; ++j )
+                        if( cThis.NodeList[order[i]].edges_list[j] == order[0] ) {
+                            reach = true ;
+                            break ;
+                        }
+
+                    if( reach ) {
+                        len = 0 ;
+                        for(i = 0 ; i < cThis.NODES_COUNT-1 ; ++i) {
+                            for( j = 0 ; j < cThis.NodeList[order[i]].edges_list.length ; ++j )
+                                if( cThis.NodeList[order[i]].edges_list[j] == order[i+1] )
+                                    break ;
+                            len += cThis.NodeList[order[i]].edges_weight[j] ;
+                        }
+                        for( j = 0 ; j < cThis.NodeList[order[i]].edges_list.length ; ++j )
+                            if( cThis.NodeList[order[i]].edges_list[j] == order[0] )
+                                break ;
+                        len += cThis.NodeList[order[i]].edges_weight[j] ;
+                        if( len < minlen ) {
+                            console.log(len) ;
+                            order_rem = order ;
+                            minlen = len ;
+                        }
+                    }
+                }
+            }while(true) ;
+
+            var order2 = [], order3 = [] ;
+            if( order_rem.length > 0 ) {
+                order2 = [["Path length"], [minlen]];
+                order3[0] = ["Order", "Vertex"];
+                for (i = 0; i < cThis.NODES_COUNT; ++i)
+                    order3[i + 1] = [i + 1, order_rem[i] + 1];
+                order3[i + 1] = [i + 1, order_rem[0] + 1];
+                cThis.SalesmanProblem = [order2, order3];
+                return cThis.SalesmanProblem;
+            }
+
+            cThis.SalesmanProblem = [[["Graph does not contain any Hamilton cycle"]]];
+        }
+        return cThis.SalesmanProblem ;
     };
 
     this.AdditionalInfo = null;
@@ -1489,8 +1581,6 @@ function getTableContent(item0, item1, item2, item3) {
                             return canvasGraph.getDistanceMatrix() ;
                         case "Johnson's algorithm":
                             return canvasGraph.getDistanceMatrix() ;
-                        case "Salesman problem":
-                            return canvasGraph.getSalesmanProblem() ;
                     }
                 return ;
                 case "From one to all vertices" :
@@ -1502,6 +1592,8 @@ function getTableContent(item0, item1, item2, item3) {
                             return canvasGraph.getDistanceFromOneVertexByFordBellman(vertexStart) ;
                     }
                     return ;
+                case "Salesman problem":
+                    return canvasGraph.getSalesmanProblem() ;
             }
             return;
         case "cycles":
@@ -1597,6 +1689,8 @@ function getContentDescription(item0, item1, item2, item3) {
                 case "From one to all vertices" :
                     vertexStart = parseInt(item3.substring(7, item3.length)) ;
                     return "Distances from " + vertexStart + " to all vertices" ;
+                case "Salesman problem" :
+                    return "Travelling salesman path" ;
             }
             return;
         case "cycles":
