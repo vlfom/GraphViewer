@@ -967,6 +967,7 @@ function Graph(NODES_COUNT) {
             for( i = 0 ; i < cThis.NODES_COUNT ; ++i )
                 order[i] = i ;
             do {
+                /* Permutation */
                 for( i = cThis.NODES_COUNT - 1 ; i > 0 ; --i )
                     if( order[i-1] < order[i] )
                         break ;
@@ -994,6 +995,7 @@ function Graph(NODES_COUNT) {
                     order[i] = to_sort[j] ;
                     ++j ;
                 }
+                /**/
 
                 var reach ;
                 for( i = 0 ; i < cThis.NODES_COUNT-1 ; ++i ) {
@@ -1028,8 +1030,8 @@ function Graph(NODES_COUNT) {
                                 break ;
                         len += cThis.NodeList[order[i]].edges_weight[j] ;
                         if( len < minlen ) {
-                            console.log(len) ;
-                            order_rem = order ;
+                            for(i = 0 ; i < cThis.NODES_COUNT ; ++i)
+                                order_rem[i] = order[i] ;
                             minlen = len ;
                         }
                     }
@@ -1052,6 +1054,187 @@ function Graph(NODES_COUNT) {
         return cThis.SalesmanProblem ;
     };
 
+    this.checkPlanar = function() {
+        var reachabilityMatrix = [], i, j, k ;
+        for(i = 0 ; i < cThis.NODES_COUNT ; ++i) {
+            reachabilityMatrix[i] = [] ;
+            for (j = 0; j < cThis.NODES_COUNT; ++j)
+                reachabilityMatrix[i][j] = 0;
+            reachabilityMatrix[i][i] = 1 ;
+        }
+
+        for(i = 0 ; i < cThis.NODES_COUNT ; ++i)
+            for( j = 0 ; j < cThis.NodeList[i].edges_list.length ; ++j )
+                reachabilityMatrix[ i ][ cThis.NodeList[i].edges_list[j] ] = 1 ;
+
+        for(k = 0 ; k < cThis.NODES_COUNT ; ++k)
+            for(i = 0 ; i < cThis.NODES_COUNT ; ++i)
+                for (j = 0; j < cThis.NODES_COUNT; ++j)
+                    if( reachabilityMatrix[i][k] && reachabilityMatrix[k][j] )
+                        reachabilityMatrix[i][j] = 1 ;
+
+        var order = [], to_sort = [];
+        for (i = 0; i < cThis.NODES_COUNT; ++i)
+            order[i] = i;
+        do {
+            /* Permutation */
+            for (i = cThis.NODES_COUNT - 1; i > 0; --i)
+                if (order[i - 1] < order[i])
+                    break;
+            if (i == 0)
+                break;
+            to_sort = [];
+            for (j = i - 1; j < cThis.NODES_COUNT; ++j)
+                to_sort.push(order[j]);
+            k = i - 1;
+            for (i = 0; i < to_sort.length; ++i)
+                for (j = i + 1; j < to_sort.length; ++j)
+                    if (to_sort[j] < to_sort[i]) {
+                        to_sort[j] ^= to_sort[i];
+                        to_sort[i] ^= to_sort[j];
+                        to_sort[j] ^= to_sort[i];
+                    }
+            for (i = 0; i < to_sort.length; ++i)
+                if (to_sort[i] > order[k])
+                    break;
+            order[k] = to_sort[i];
+            j = 0;
+            for (i = k + 1; i < cThis.NODES_COUNT; ++i) {
+                if (to_sort[j] == order[k])
+                    ++j;
+                order[i] = to_sort[j];
+                ++j;
+            }
+            /**/
+
+            for(i = 0 ; i < 5 ; ++i) {
+                for (j = 0; j < 5; ++j)
+                    if (!reachabilityMatrix[i][j])
+                        break ;
+                if( j < 5 )
+                    break ;
+            }
+            if( i == 5 )
+                return false ;
+
+            if( cThis.NODES_COUNT > 5 ) {
+                for(i = 0 ; i < 3 ; ++i) {
+                    for (j = 3; j < 6; ++j)
+                        if (!reachabilityMatrix[i][j])
+                            break ;
+                    if( j < 6 )
+                        break ;
+                }
+                if( i == 3 ) {
+                    for(i = 3 ; i < 6 ; ++i) {
+                        for (j = 0; j < 3; ++j)
+                            if (!reachabilityMatrix[i][j])
+                                break ;
+                        if( j < 3 )
+                            break ;
+                    }
+                    if( i == 6 )
+                        return false ;
+                }
+            }
+        }while(true) ;
+        return true ;
+    };
+
+    this.getMaximumFlow = function(startVertex, endVertex) {
+        var c = [], f = [], s, t, d = [], ptr = [], q = [], i, j ;
+
+        s = startVertex ;
+        t = endVertex ;
+
+        for( i = 0 ; i < cThis.NODES_COUNT ; ++i ) {
+            c[i] = [] ;
+            f[i] = [] ;
+            for( j = 0 ; j < cThis.NODES_COUNT ; ++j ) {
+                c[i][j] = 0;
+                f[i][j] = 0;
+            }
+        }
+
+        for(i = 0 ; i < cThis.NODES_COUNT ; ++i)
+            for( j = 0 ; j < cThis.NodeList[i].edges_list.length ; ++j )
+                c[ i ][ cThis.NodeList[i].edges_list[j] ] = cThis.NodeList[i].edges_weight[j] ;
+
+        function bfs() {
+            var qh=0, qt=0;
+            q[qt++] = s;
+            for( var k = 0 ; k < cThis.NODES_COUNT ; ++k )
+                d[k] = -1 ;
+            d[s] = 0;
+            while (qh < qt) {
+                var v = q[qh++];
+                for (var to = 0 ; to < cThis.NODES_COUNT ; ++to)
+                    if (d[to] == -1 && f[v][to] < c[v][to]) {
+                        q[qt++] = to;
+                        d[to] = d[v] + 1;
+                    }
+            }
+            return d[t] != -1;
+        }
+
+        function min(x,y) {
+            if( x < y )
+                return x ;
+            return y ;
+        }
+
+        function dfs (v, flow) {
+            if (!flow)
+                return 0;
+            if (v == t)
+                return flow;
+            while( ptr[v] < cThis.NODES_COUNT ) {
+                if (d[ptr[v]] == d[v] + 1) {
+                    var pushed = dfs(ptr[v], min(flow, c[v][ptr[v]] - f[v][ptr[v]]));
+                    if (pushed) {
+                        f[v][ptr[v]] += pushed;
+                        f[ptr[v]][v] -= pushed;
+                        return pushed;
+                    }
+                }
+                ++ptr[v];
+            }
+            return 0;
+        }
+
+        var flow = 0;
+        for (;;) {
+            if (!bfs())
+                break;
+            for(var k = 0 ; k < cThis.NODES_COUNT ; ++k)
+                ptr[k] = 0 ;
+            do {
+                var pushed = dfs(s, 1000000) ;
+                if( !pushed )
+                    break ;
+                flow += pushed ;
+            }while(true) ;
+        }
+        var newF = [] ;
+        for( i = 0 ; i < cThis.NODES_COUNT+1 ; ++i ) {
+            newF[i] = [] ;
+            for( j = 0 ; j < cThis.NODES_COUNT+1 ; ++j ) {
+                newF[i][j] = 0;
+            }
+        }
+
+        newF[0][0] = "-" ;
+        for( i = 0 ; i < cThis.NODES_COUNT ; ++i ) {
+            newF[0][i+1] = i+1 ;
+            newF[i+1][0] = i+1 ;
+        }
+        for( i = 0 ; i < cThis.NODES_COUNT ; ++i )
+            for( j = 0 ; j < cThis.NODES_COUNT ; ++j )
+                newF[i+1][j+1] = f[i][j] ;
+
+        return [[["Maximum flow"], [flow]], newF] ;
+    };
+
     this.AdditionalInfo = null;
     this.getAdditionalInfo = function () {
         if (!cThis.AdditionalInfo) {
@@ -1069,7 +1252,7 @@ function Graph(NODES_COUNT) {
             //chordal
             cThis.AdditionalInfo = new Array(7);
             var i;
-            for (i = 0; i < 7; ++i)
+            for (i = 0; i < 8; ++i)
                 cThis.AdditionalInfo[i] = new Array(2);
 
             cThis.AdditionalInfo[0][0] = "Property";
@@ -1081,6 +1264,8 @@ function Graph(NODES_COUNT) {
             cThis.AdditionalInfo[4][0] = "Tree-like";
             cThis.AdditionalInfo[5][0] = "Full";
             cThis.AdditionalInfo[6][0] = "Regular";
+
+            cThis.AdditionalInfo[7][0] = "Planar";
             //cThis.AdditionalInfo[7][0] = "Bipartite" ;
             //cThis.AdditionalInfo[8][0] = "Chordal" ;
 
@@ -1090,6 +1275,8 @@ function Graph(NODES_COUNT) {
             cThis.AdditionalInfo[4][1] = ( cThis.getFundamentalCycles().length == 1 + cThis.NODES_COUNT ? "+" : "-" );
             cThis.AdditionalInfo[5][1] = ( checkFullness(cThis) ? "+" : "-" );
             cThis.AdditionalInfo[6][1] = ( checkRegularity(cThis) ? "+" : "-" );
+
+            cThis.AdditionalInfo[7][1] = ( cThis.checkPlanar() ? "+" : "-" );
             //cThis.AdditionalInfo[7][1] = "+" ;
             //cThis.AdditionalInfo[8][1] = "+" ;
 
@@ -1415,10 +1602,8 @@ function columnWidths(item0, item1, item2, item3) {
             return;
         case "flow":
             switch(item1) {
-                case "Minimum flow" :
-                    return [] ;
                 case "Maximum flow" :
-                    return [] ;
+                    return [100] ;
             }
             return [];
         case "traversal":
@@ -1484,7 +1669,6 @@ function dropdown1list(itemName) {
             ] ;
         case "flow":
             return [
-                ["Minimum flow" , 2],
                 ["Maximum flow", 2]
             ] ;
         case "traversal":
@@ -1513,7 +1697,6 @@ function dropdown2list(itemName) {
                 "Dijkstra algorithm",
                 "Ford-Bellman algorithm"
             ] ;
-        case "Minimum flow":
         case "Maximum flow":
             return verticesWithHeadText("Select start vertex:") ;
         case "DFS":
@@ -1526,15 +1709,13 @@ function dropdown3list(itemName) {
     switch (itemName) {
         case "From one to all vertices":
             return verticesWithHeadText("Select start vertex: ") ;
-        case "Minimum flow":
         case "Maximum flow":
             return verticesWithHeadText("Select end vertex: ") ;
     }
 }
 
 function dropdown2MustNotBeNull(itemName) {
-    if( itemName == "Minimum flow" ||
-        itemName == "Maximum flow" ||
+    if( itemName == "Maximum flow" ||
         itemName == "DFS" ||
         itemName == "BFS" )
         return true ;
@@ -1542,8 +1723,7 @@ function dropdown2MustNotBeNull(itemName) {
 }
 
 function dropdown3MustNotBeNull(itemName) {
-    if( itemName == "Minimum flow" ||
-        itemName == "Maximum flow" ||
+    if( itemName == "Maximum flow" ||
         itemName == "From one to all vertices" )
         return true ;
     return false ;
@@ -1621,12 +1801,8 @@ function getTableContent(item0, item1, item2, item3) {
             vertexStart = parseInt(item2.substring(7, item2.length)) - 1 ;
             vertexEnd = parseInt(item3.substring(7, item3.length)) - 1 ;
             switch(item1) {
-                case "Minimum flow" :
-                    //TODO
-                    return canvasGraph.getDistanceMatrix() ;
                 case "Maximum flow" :
-                    //TODO
-                    return canvasGraph.getDistanceMatrix() ;
+                    return canvasGraph.getMaximumFlow(vertexStart, vertexEnd) ;
             }
             return;
         case "traversal":
@@ -1712,8 +1888,6 @@ function getContentDescription(item0, item1, item2, item3) {
             vertexStart = parseInt(item2.substring(7, item2.length)) ;
             vertexEnd = parseInt(item3.substring(7, item3.length)) ;
             switch(item1) {
-                case "Minimum flow" :
-                    return "Minimum flow from " + vertexStart + " to " + vertexEnd + " vertices" ;
                 case "Maximum flow" :
                     return "Maximum flow from " + vertexStart + " to " + vertexEnd + " vertices" ;
             }
@@ -1802,8 +1976,6 @@ function getAdditionalContentDescription(item0, item1, item2, item3) {
             vertexStart = parseInt(item2.substring(7, item2.length)) - 1 ;
             vertexEnd = parseInt(item3.substring(7, item3.length)) - 1 ;
             switch(item1) {
-                case "Minimum flow" :
-                    return null ;
                 case "Maximum flow" :
                     return null ;
             }
